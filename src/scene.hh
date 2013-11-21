@@ -36,7 +36,7 @@ class Scene
     // distance to the origin of the ray. s_id represents the shape that is
     // hit. If no hit, returns NULL and s_id is set to -1
     // FIXME: better return type ?
-    std::pair<cv::Vec3d, double>* hit(Ray& ray, int& s_id);
+    bool hit(Ray& ray, int& s_id, cv::Vec3d& intersect, double& dist);
 
     /// Does the complete rendering of the scene for a given ray.
     // The depth parameter is used to determine the maximum reflection depth

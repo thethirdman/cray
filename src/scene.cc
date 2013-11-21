@@ -8,33 +8,29 @@ void Scene::setDims(int x, int y)
   y_ = y;
 }
 
-std::pair<cv::Vec3d, double>* Scene::hit(Ray& ray, int& s_id)
+bool Scene::hit(Ray& ray, int& s_id, cv::Vec3d& best_hit, double& best_dist)
 {
-  std::pair<cv::Vec3d, double>* best_hit = 0;
   int shape_id = -1;
 
   // For each shape, if we hit something, we check if it is the smallest
   // distance we found yet.
   for (int s = 0; s < shapes_.size(); s++)
   {
-    std::pair<cv::Vec3d, double>* hit = shapes_[s]->intersect(ray);
-    if (hit)
+    cv::Vec3d intersect;
+    double dist;
+    
+    if (shapes_[s]->intersect(ray, intersect, dist))
     {
-      if (shape_id == -1 || (best_hit && hit->second < best_hit->second))
+      if (shape_id == -1 || (dist < best_dist))
       {
         shape_id = s;
-        // FIXME: because intersect returns something that can be null (or
-        // dynamically allocated); we have to do manual delete, it looks ugly.
-        if (best_hit)
-          delete best_hit;
-        best_hit = hit;
+        best_hit = intersect;
+        best_dist = dist;
       }
-      else
-        delete hit;
     }
   }
   s_id = shape_id;
-  return best_hit;
+  return (shape_id != -1 ? true : false);
 }
 
 // FIXME: find this function a home
@@ -72,13 +68,12 @@ double Scene::soft_shadows_comp(Ray& lray, Shape& shape)
     cv::Vec3d shift_dir = normalize(lray.dir() + shift);
 
     // classic intersection check
-    std::pair<cv::Vec3d, double>* rnhit = shape.intersect(Ray(lray.orig(), shift_dir));
-    if (rnhit)
-    {
-      if (rnhit->second > 0)
+    cv::Vec3d intersect;
+    double dist;
+
+    if (shape.intersect(Ray(lray.orig(), shift_dir), intersect, dist))
+      if (dist > 0)
         hit_count++;
-      delete rnhit;
-    }
   }
 
   // Hack to disable the soft shadows
@@ -98,30 +93,32 @@ Color Scene::ray_launch(Ray& ray, int depth)
 
   int shape_id;
   // We first check for a hit with a shape
-  std::pair<cv::Vec3d, double>* contact = hit(ray, shape_id);
-  Color result (0.,0.,0.);
+  cv::Vec3d intersection;
+  double inter_dist;
+  
+  Color result;
 
   // if there is a hit, we take into account the lights of the scene
-  if (contact!= NULL)
+  if (hit(ray, shape_id, intersection, inter_dist))
   {
     for (auto l : lights_)
     {
 
       // We define the ray from the shape to the light
-      cv::Vec3d& intersection = contact->first;
       cv::Vec3d dir_light = normalize(l.orig() - intersection);
       double shadowed = 0.0;
 
       // If this ray its a shape, it shadowed.
       for (int s = 0; s < shapes_.size(); s++)
       {
-        std::pair<cv::Vec3d,double>* shit = shapes_[s]->intersect(Ray(intersection, dir_light));
-        if (shit && shape_id != s)
+        cv::Vec3d hit; 
+        double dist;
+        
+        if (shapes_[s]->intersect(Ray(intersection, dir_light), hit, dist) && shape_id != s)
         {
           // If it is shadowed, we try a soft shadow rendering
           Ray foo (intersection, l.orig() - intersection);
           shadowed = soft_shadows_comp(foo, *shapes_[s]);
-          delete shit;
         }
       }
 
