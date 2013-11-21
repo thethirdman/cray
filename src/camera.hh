@@ -9,6 +9,10 @@
 
 #define _USE_MATH_DEFINES
 
+// This file contains the camera definition, that is the class
+// that describes the viewer location in the scene, and how the rays
+// are launched from this location
+
 class Camera
 {
   public:
@@ -23,21 +27,25 @@ class Camera
     std::vector<Ray>& getRays(void)
     {
       std::vector<Ray>* rayMat = new std::vector<Ray> (x_ * y_);
+
+      // Those two vector define the tangent plane to the camera direction
+      // that we use to cast the rays
       cv::Vec3d cam_right = normalize(up_.cross(dir_));
       cv::Vec3d cam_up    = normalize(dir_.cross(cam_right));
-      double xd = (double) x_;
-      double yd = (double) y_;
+      double xd = static_cast<double>(x_);
+      double yd = static_cast<double>(y_);
 
-
-      fovx_ = 1;
-      fovy_ = 1;
       cv::Vec3d center = pos_ + dir_;
+
       for (int j = 0; j < y_; j++)
         for (int i = 0; i < x_; i++)
         {
-          double normal_i = (((double) i)/xd - 0.5) * fovx_;
-          double normal_j = (((double) j)/yd - 0.5) * fovy_;
+          // The pixel (i,j) is normalised, centered, and the affected by the
+          // FOV
+          double normal_i = (static_cast<double>(i)/xd - 0.5) * fovx_;
+          double normal_j = (static_cast<double>(j)/yd - 0.5) * fovy_;
 
+          // it is then projected on the tangent plane
           cv::Vec3d pt = normal_i * cam_right + normal_j * cam_up + center;
           cv::Vec3d pt_dir = normalize(pt - pos_);
 
@@ -46,12 +54,18 @@ class Camera
       return *rayMat;
     }
   private:
+    // The dimension of the image generated
     int x_;
     int y_;
+    // The size of the field of view
     double fovx_;
     double fovy_;
+
+    // The position of the camera in the scene
     cv::Vec3d pos_;
+    // Its viewing direction
     cv::Vec3d dir_;
+    // Its vertical orientation
     cv::Vec3d up_;
 };
 

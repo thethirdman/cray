@@ -21,10 +21,12 @@ int main(int argc, char** argv)
     return 1;
   }
 
+  // FIXME: Testing code to remove once we have parsing of a scene file
   int x_size = atoi(argv[2]);
   int y_size = atoi(argv[3]);
   int realx = SIZE_FACTOR * x_size;
   int realy = SIZE_FACTOR * y_size;
+
   Camera* camera = new Camera(cv::Vec3i(0,0,-700), cv::Vec3d(0., 0., 1.), cv::Vec3d(0., 1., 0.)
       , realx, realy);
 

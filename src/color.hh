@@ -3,6 +3,10 @@
 
 #include <cv.h>
 
+// This files describe how a color is represented in our raytracer.
+// For simplicity purposes, color values are represented as a double between
+// 0 and 1
+
 class Color
 {
   public:
@@ -13,16 +17,13 @@ class Color
       b_ = b/255.;
     }
     Color (double r, double g, double b) : r_(r), g_(g), b_(b) { }
-    Color () {}
+    Color () {} // FIXME: remove ?
 
     double r() {return r_;}
     double g() {return g_;}
     double b() {return b_;}
-    Color add(Color rgb)
-    {
-      return Color(r_ + rgb.r(), g_ + rgb.g(), b_ + rgb.b());
-    }
 
+    // Conversion to the color representation of OpenCV
     cv::Vec3b toBgr()
     {
       int r = r_ * 255;
@@ -30,21 +31,24 @@ class Color
       int b = b_ * 255;
       return cv::Vec3b(b,g,r);
     }
-    Color operator/ (double c)
-    {
-      return Color(r_ / c, g_/c, b_/c);
-    }
+
   private:
     double r_, g_, b_;
 };
 
+// Basic arithmetic operations on colors, implementation in color.cc
+// @Ttm: I'm not sure yet if we should automatically clamp values, and in what
+//       case
+
 Color operator+ (Color a, Color other);
+Color operator+(Color rgb, double val);
+
+Color operator-(Color rgb, double val);
 
 Color operator* (Color rgb, double val);
-
 Color operator*(double val, Color rgb);
 Color operator* (Color a, Color other);
 
-Color operator+(Color rgb, double val);
-Color operator-(Color rgb, double val);
+
+Color operator/ (Color rgb, double c);
 #endif
