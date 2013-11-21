@@ -1,10 +1,16 @@
-Plan
-Cube
-Cone
-Cylindre
 
-Radiosité
+Volumes:
+  - Plan
+  - Cube
+  - Cone
+  - Cylindre
 
-Lumières
+Lumières:
+  - Phong++
+  - Radiosité (ça a l'air compliqué)
+  - Ombre diffuse (ce serait bien)
 
-Textures
+Textures:
+  - Procédurales (perlin, damier)
+  - Texture mapping
+  - Bumpmap
