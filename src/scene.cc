@@ -134,30 +134,37 @@ Color Scene::ray_launch(Ray& ray, int depth)
       // Lambert light diffusion method.
       // The dot product defines a "lightning" coefficient which ponderates the
       // intensity of the color of the shape.
-      double diffval = shapes_[shape_id]->normal(intersection).dot(dir_light);
-      Color diffuse = l.getColor() * (diffval < 0 ? 0 : diffval);
       // Shadows apply only to the diffuse light vaue
-      diffuse = diffuse - shadowed;
-
+      double diffval = shapes_[shape_id]->normal(intersection).dot(dir_light) - shadowed;
+      double ambient = 0.1;
+      Color color;
+      if (diffval > ambient)
+      {
+        Color diffuse = l.getColor() * (diffval < 0 ? 0 : diffval);
+        color = (shapes_[shape_id]->getColor() * diffuse);
+      }
       // Ambient light value: the color that an objet will have if it is not
       // illuminated.
-      Color ambient = 0.1 * l.getColor();
+      else
+        color = shapes_[shape_id]->getColor() * ambient;
 
 
       // Reflection rendering
-      Color color = shapes_[shape_id]->getColor();
       // We launch the reflected ray
       Ray refl_ray = reflect(Ray(intersection, ray.dir()), *shapes_[shape_id]);
       Color refl_color = shapes_[shape_id]->getColor();
-      if (depth < 3)
+      if (depth < 5)
       {
+        // FIXME: make diffuse reflection
         refl_color = ray_launch(refl_ray, depth + 1);
-        double refl_coef = 0.5;
-        color = ((1. - refl_coef)*color) + (refl_coef*refl_color);
+        double refl_coef = shapes_[shape_id]->refl();
+
+        if (refl_color.max() != 0)
+          color = ((1. - refl_coef)*color) + (refl_coef*refl_color);
       }
 
-      Color light_v = diffuse + ambient;
-      result = result + (color * light_v);
+      //Color light_v = diffuse + ambient;
+      result = result + color;
     }
   }
 
