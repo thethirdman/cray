@@ -39,7 +39,7 @@ double Scene::soft_shadows_comp(Ray& lray, Shape& shape)
   // normal to the intersection point: if it is close to 0, we may be on the
   // border of an object, and more rays should be launched.
   // FIXME: something sdirs is smaller that 0, which make ray_num false
-  double sdir = shape.normal(lray.orig()).dot(normalize(lray.dir()));
+  double sdir = shape.normal(lray).dot(normalize(lray.dir()));
 
   // The multiplication by 0 is here to disable the soft_shadows
   int ray_num = 0 * (1. - sdir);

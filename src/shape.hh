@@ -14,7 +14,7 @@ class Shape
     virtual bool intersect(Ray ray, cv::Vec3d& intersect, double& dist) = 0;
 
     // The normal vector to a shape at the intersection point pt
-    virtual cv::Vec3d normal(cv::Vec3d pt) = 0;
+    virtual cv::Vec3d normal(Ray& ray) = 0;
 
     Color getColor(void)
     {
@@ -84,9 +84,9 @@ class Sphere : public Shape
         return false;
     }
 
-    cv::Vec3d normal(cv::Vec3d pt)
+    cv::Vec3d normal(Ray& ray)
     {
-      return normalize(pt - center_);
+      return normalize(ray.orig() - center_);
     }
 
   private:
@@ -118,9 +118,9 @@ class Plane : public Shape
       else
         return false;
     }
-    cv::Vec3d normal(cv::Vec3d pt)
+    cv::Vec3d normal(Ray& ray)
     {
-      return normal_;
+      return (normal_.dot(ray.dir()) < 0 ? -normal_ : normal_);
     }
 
   protected:
@@ -168,9 +168,9 @@ class Triangle : public Shape
         return false;
     }
 
-    cv::Vec3d normal(cv::Vec3d pt)
+    cv::Vec3d normal(Ray& ray)
     {
-      return normal_;
+      return (normal_.dot(ray.dir()) < 0 ? -normal_ : normal_);
     }
 
   private:
