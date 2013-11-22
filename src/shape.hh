@@ -21,6 +21,21 @@ class Shape
       return color_;
     }
     double refl(void) { return refl_coef_;}
+
+    Ray reflect(Ray ray)
+    {
+      Ray op_ray = ray.op_dir();
+      cv::Vec3d normal_dir = this->normal(op_ray);
+      // Direction of the reflected vector
+      cv::Vec3d refl_dir = ray.dir() - 2.0 * normal_dir * ray.dir().dot(normal_dir);
+      //
+      // Because of the double imprecision, we have to shift the reflected ray out
+      // of the shape. Still, something smells fishy, I think something wrong is
+      // done somewhere.
+      const double shift = std::numeric_limits<double>::epsilon() * 65536.0;
+
+      return Ray (ray.orig() + normal_dir * shift, normalize(refl_dir));
+    }
   protected:
     Shape(Color col, double refl) : color_(col), refl_coef_(refl) {}
     Color color_;

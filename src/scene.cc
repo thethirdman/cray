@@ -33,22 +33,6 @@ bool Scene::hit(Ray& ray, int& s_id, cv::Vec3d& best_hit, double& best_dist)
   return (shape_id != -1 ? true : false);
 }
 
-// FIXME: find this function a home
-// Computes the reflected ray to a shape
-static Ray reflect(Ray ray, Shape& shape)
-{
-  cv::Vec3d normal_dir = shape.normal(ray.orig());
-  // Direction of the reflected vector
-  cv::Vec3d refl_dir = ray.dir() - 2.0 * normal_dir * ray.dir().dot(normal_dir);
-  //
-  // Because of the double imprecision, we have to shift the reflected ray out
-  // of the shape. Still, something smells fishy, I think something wrong is
-  // done somewhere.
-  const double shift = std::numeric_limits<double>::epsilon() * 65536.0;
-
-  return Ray (ray.orig() + normal_dir * shift, normalize(refl_dir));
-}
-
 double Scene::soft_shadows_comp(Ray& lray, Shape& shape)
 {
   // We first compute the number of rays we wanted to launch based on the
