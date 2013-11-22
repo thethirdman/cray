@@ -10,6 +10,7 @@ class Ray
     Ray() {}
     cv::Vec3d orig() {return orig_;}
     cv::Vec3d dir() {return dir_;}
+    Ray op_dir() {return Ray(orig_, -dir_);}
   private:
     // A ray as an origin and a direction
     cv::Vec3d orig_;

@@ -72,6 +72,50 @@ double Scene::soft_shadows_comp(Ray& lray, Shape& shape)
   return clamp_one(shadowed);
 }
 
+Color Scene::render_light(Ray &ray, cv::Vec3d intersection, Light& l, Shape& shape, int depth)
+{
+  // We define the ray from the shape to the light
+  cv::Vec3d dir_light = normalize(l.orig() - intersection);
+  double light_dist = cv::norm(l.orig() - intersection);
+  double shadowed = 0.0;
+
+  Ray light_ray (intersection, dir_light);
+  // If this ray its a shape, it shadowed.
+  for (int s = 0; s < shapes_.size(); s++)
+  {
+    cv::Vec3d hit;
+    double dist;
+
+    if (shapes_[s]->intersect(light_ray, hit, dist) && &shape != shapes_[s])
+    {
+      // If it is shadowed, we try a soft shadow rendering
+      //Ray foo (intersection, l.orig() - intersection);
+      if (dist < light_dist)
+        shadowed = 1;// soft_shadows_comp(foo, *shapes_[s]);
+    }
+  }
+
+  // FIXME: light ray could be recomputed for tidyness
+  Color color = l.illumination(shape, ray, light_ray, shadowed);
+
+  // Reflection rendering
+  // We launch the reflected ray
+  Ray refl_ray = shape.reflect(Ray(intersection, ray.dir()));
+  Color refl_color = shape.getColor();
+  if (depth < 1 && shape.refl() > 0)
+  {
+    // FIXME: make diffuse reflection
+    refl_color = ray_launch(refl_ray, depth + 1);
+    double refl_coef = shape.refl();
+
+    if (refl_color.max() != 0)
+      color = ((1. - refl_coef)*color) + (refl_coef*refl_color);
+  }
+  return color;
+}
+
+
+
 Color Scene::ray_launch(Ray& ray, int depth)
 {
 
@@ -84,73 +128,8 @@ Color Scene::ray_launch(Ray& ray, int depth)
 
   // if there is a hit, we take into account the lights of the scene
   if (hit(ray, shape_id, intersection, inter_dist))
-  {
     for (auto l : lights_)
-    {
-
-      // We define the ray from the shape to the light
-      cv::Vec3d dir_light = normalize(l.orig() - intersection);
-      double shadowed = 0.0;
-
-      // If this ray its a shape, it shadowed.
-      for (int s = 0; s < shapes_.size(); s++)
-      {
-        cv::Vec3d hit; 
-        double dist;
-        
-        if (shapes_[s]->intersect(Ray(intersection, dir_light), hit, dist) && shape_id != s)
-        {
-          // If it is shadowed, we try a soft shadow rendering
-          Ray foo (intersection, l.orig() - intersection);
-          shadowed = soft_shadows_comp(foo, *shapes_[s]);
-        }
-      }
-
-      // FIXME: the lightning section is imho, bugged. White objects appear
-      // gray because of the reflection stuff, and the whole thing should be
-      // redesigned: the diffusion value should be associated to an object to
-      // simulate different materials, as well as the reflection. Is also think
-      // that ambien lightning should not be a constant value, but computed
-      // somehow.
-      // I'm not sure if we should to the mean of the different light values.
-
-
-      // Lambert light diffusion method.
-      // The dot product defines a "lightning" coefficient which ponderates the
-      // intensity of the color of the shape.
-      // Shadows apply only to the diffuse light vaue
-      double diffval = shapes_[shape_id]->normal(intersection).dot(dir_light) - shadowed;
-      double ambient = 0.1;
-      Color color;
-      if (diffval > ambient)
-      {
-        Color diffuse = l.getColor() * (diffval < 0 ? 0 : diffval);
-        color = (shapes_[shape_id]->getColor() * diffuse);
-      }
-      // Ambient light value: the color that an objet will have if it is not
-      // illuminated.
-      else
-        color = shapes_[shape_id]->getColor() * ambient;
-
-
-      // Reflection rendering
-      // We launch the reflected ray
-      Ray refl_ray = reflect(Ray(intersection, ray.dir()), *shapes_[shape_id]);
-      Color refl_color = shapes_[shape_id]->getColor();
-      if (depth < 5)
-      {
-        // FIXME: make diffuse reflection
-        refl_color = ray_launch(refl_ray, depth + 1);
-        double refl_coef = shapes_[shape_id]->refl();
-
-        if (refl_color.max() != 0)
-          color = ((1. - refl_coef)*color) + (refl_coef*refl_color);
-      }
-
-      //Color light_v = diffuse + ambient;
-      result = result + color;
-    }
-  }
+      result = result + render_light(ray, intersection, l, *shapes_[shape_id], depth);
 
   return result/lights_.size();
 }

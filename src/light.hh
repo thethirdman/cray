@@ -4,6 +4,9 @@
 // Basic light definition
 // It may be interesting to define a light with a dimension in order
 // to make soft shadows ?
+
+#include "shape.hh"
+
 class Light
 {
   public:
@@ -12,6 +15,29 @@ class Light
 
     cv::Vec3d orig(void) {return orig_;}
     Color getColor(void) {return color_;}
+    Color illumination(Shape& shape, Ray& ray, Ray& light_ray, double shadowed)
+    {
+      // Lambert light diffusion method.
+      // The dot product defines a "lightning" coefficient which ponderates the
+      // intensity of the color of the shape.
+      // Shadows apply only to the diffuse light vaue
+      //shadowed = 0;
+      double diffval = clamp_zero(shape.normal(light_ray).dot(light_ray.dir()) - shadowed);
+
+      // Phong specular light
+      Ray tmp = light_ray.op_dir();
+      Ray refl_light = shape.reflect(tmp);
+      double phong = clamp_zero(refl_light.dir().dot(normalize(ray.dir() - light_ray.orig())));
+      phong *= phong;
+      phong *= phong;
+
+      // Ambient light
+      double ambient = 0.1;
+      double total_light = clamp_one(ambient + diffval + phong);
+      Color color = total_light * color_ * shape.getColor();
+
+      return color;
+    }
 
   private:
     cv::Vec3d orig_;

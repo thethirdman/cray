@@ -38,6 +38,7 @@ class Scene
     // FIXME: better return type ?
     bool hit(Ray& ray, int& s_id, cv::Vec3d& intersect, double& dist);
 
+    Color render_light(Ray &ray, cv::Vec3d intersection, Light& l, Shape& shape, int depth);
     /// Does the complete rendering of the scene for a given ray.
     // The depth parameter is used to determine the maximum reflection depth
     // (reflection computation is just a recursion with a new ray).
