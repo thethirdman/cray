@@ -85,7 +85,7 @@ double Scene::soft_shadows_comp(Ray& lray, Shape& shape)
   double shadowed = ((double) hit_count)/((double) ray_num);
 
   // This return check is rubbish
-  return (shadowed > 1 ? 1. : shadowed);
+  return clamp_one(shadowed);
 }
 
 Color Scene::ray_launch(Ray& ray, int depth)
