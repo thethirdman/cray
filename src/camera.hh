@@ -17,7 +17,7 @@ class Camera
 {
   public:
     Camera(cv::Vec3i pos, cv::Vec3d dir, cv::Vec3d up, int x, int y)
-      : pos_(pos), dir_(dir), up_(up), x_(x), y_(y)
+      : x_(x), y_(y), pos_(pos), dir_(dir), up_(up)
     {
       double fov = M_PI_4;
       fovx_ = tan(fov);

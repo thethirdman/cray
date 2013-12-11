@@ -14,11 +14,11 @@ bool Scene::hit(Ray& ray, int& s_id, cv::Vec3d& best_hit, double& best_dist)
 
   // For each shape, if we hit something, we check if it is the smallest
   // distance we found yet.
-  for (int s = 0; s < shapes_.size(); s++)
+  for (unsigned int s = 0; s < shapes_.size(); s++)
   {
     cv::Vec3d intersect;
     double dist;
-    
+
     if (shapes_[s]->intersect(ray, intersect, dist))
     {
       if (shape_id == -1 || (dist < best_dist))
@@ -81,7 +81,7 @@ Color Scene::render_light(Ray &ray, cv::Vec3d intersection, Light& l, Shape& sha
 
   Ray light_ray (intersection, dir_light);
   // If this ray its a shape, it shadowed.
-  for (int s = 0; s < shapes_.size(); s++)
+  for (unsigned int s = 0; s < shapes_.size(); s++)
   {
     cv::Vec3d hit;
     double dist;

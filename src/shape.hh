@@ -45,7 +45,8 @@ class Shape
 class Sphere : public Shape
 {
   public:
-    Sphere(cv::Vec3d c, Color color, double r, double refl) : center_(c), Shape(color, refl), radius_(r) {}
+    Sphere(cv::Vec3d c, Color color, double r, double refl)
+        : Shape(color, refl), center_(c), radius_(r) {}
 
     bool intersect(Ray ray, cv::Vec3d& intersect, double& dist)
     {
@@ -72,7 +73,7 @@ class Sphere : public Shape
         else if (t2 > 0)
           mint = t2;
         else
-          return NULL;
+          return false;
 
         // FIXME: for now, only one of the two solutiosn is returned
         // it is the smallest distance. Not sure if this is a good idea
@@ -98,7 +99,7 @@ class Plane : public Shape
 {
   public:
     Plane(cv::Vec3d pt1, cv::Vec3d dir1, cv::Vec3d dir2, Color color, double refl)
-    : pt1_(pt1), dir1_(dir1), dir2_(dir2), Shape(color, refl)
+    : Shape(color, refl), pt1_(pt1), dir1_(dir1), dir2_(dir2)
     {
       normal_ = normalize(dir1.cross(dir2));
     }
