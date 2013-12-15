@@ -16,6 +16,7 @@ file (
   GLOB_RECURSE
   HEADER_FILES
   src/*.hh
+  src/*.hhx
 )
 
 add_definitions(-g)
