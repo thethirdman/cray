@@ -17,9 +17,8 @@ BitmapTexture::BitmapTexture(const cv::Mat& texture,
       x_max_(texture.cols - 1),
       y_max_(texture.rows - 1)
 {
-    MaterialFunctor* mfp = const_cast<MaterialFunctor*>(&func_);
-    delete mfp;
-    mfp = new MaterialFunctor(
+    MaterialFunctor* noconst_func = const_cast<MaterialFunctor*>(&func_);
+    *noconst_func = *(new MaterialFunctor(
         [this](int x, int y) -> Color
         {
             // First apply the translation; then, if bigger than the image,
@@ -36,5 +35,5 @@ BitmapTexture::BitmapTexture(const cv::Mat& texture,
             int red   = pixelPtr[x*cn*this->texture_.cols + y*cn + 2]; // R
             return Color(red, green, blue);
         }
-    );
+    ));
 }
