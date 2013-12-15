@@ -1,4 +1,4 @@
-#ifndef COLOR_HH8
+#ifndef COLOR_HH_
 # define COLOR_HH_
 
 #include <cv.h>
