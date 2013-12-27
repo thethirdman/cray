@@ -9,6 +9,7 @@
 class Shape
 {
   public:
+    static Shape* parse(tinyxml2::XMLNode* node);
     // Returns the normal to a shape at the point of intersection, or a null
     // pointer otherwise
     virtual bool intersect(Ray ray, cv::Vec3d& intersect, double& dist) = 0;
@@ -45,6 +46,7 @@ class Shape
 class Sphere : public Shape
 {
   public:
+    static Sphere* parse(tinyxml2::XMLNode* node);
     Sphere(cv::Vec3d c, Color color, double r, double refl)
         : Shape(color, refl), center_(c), radius_(r) {}
 
@@ -98,8 +100,9 @@ class Sphere : public Shape
 class Plane : public Shape
 {
   public:
+    static Plane* parse(tinyxml2::XMLNode* node);
     Plane(cv::Vec3d pt1, cv::Vec3d dir1, cv::Vec3d dir2, Color color, double refl)
-    : pt1_(pt1), dir1_(dir1), dir2_(dir2), Shape(color, refl)
+    : Shape(color, refl), pt1_(pt1), dir1_(dir1), dir2_(dir2)
     {
       normal_ = normalize(dir1.cross(dir2));
     }

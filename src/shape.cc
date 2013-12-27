@@ -10,7 +10,10 @@ Shape* Shape::parse(tinyxml2::XMLNode* node)
   else if (is_named("triangle", node))
     return Triangle::parse(node);
   else
+  {
     std::cerr << "Error: unexpected shape of type " << node->ToElement()->Name() << std::endl;
+    exit(1);
+  }
 }
 
 Sphere* Sphere::parse(tinyxml2::XMLNode* node)
@@ -40,7 +43,7 @@ Sphere* Sphere::parse(tinyxml2::XMLNode* node)
       exit(1);
     }
   }
-  while (child = child->NextSibling());
+  while ((child = child->NextSibling()));
 
   // FIXME: refl value
   return new Sphere(pos, col, radius, 0.3);
@@ -71,7 +74,7 @@ Plane* Plane::parse(tinyxml2::XMLNode* node)
       exit(1);
     }
   }
-  while (child = child->NextSibling());
+  while ((child = child->NextSibling()));
 
   // FIXME: refl value
   return new Plane(pos,dir1,dir2, col, 0);
@@ -110,7 +113,7 @@ Triangle* Triangle::parse(tinyxml2::XMLNode* node)
       exit(1);
     }
   }
-  while (child = child->NextSibling());
+  while ((child = child->NextSibling()));
 
   return new Triangle(pt1,pt2,pt3,col, 0.5);
 }

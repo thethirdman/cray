@@ -18,7 +18,7 @@ Light Light::parse(tinyxml2::XMLNode* node)
       exit(1);
     }
   }
-  while (child = child->NextSibling());
+  while ((child = child->NextSibling()));
 
 
   return Light(pos, col);

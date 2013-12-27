@@ -25,7 +25,7 @@ Scene* Scene::parse(char* path, int x, int y)
       {
         shapes->push_back(Shape::parse(xmlshapes));
       }
-      while (xmlshapes = xmlshapes->NextSibling());
+      while ((xmlshapes = xmlshapes->NextSibling()));
     }
     else if (is_named("lights", child))
     {
@@ -34,13 +34,13 @@ Scene* Scene::parse(char* path, int x, int y)
       {
         lights->push_back(Light::parse(xmllights));
       }
-      while (xmllights = xmllights->NextSibling());
+      while ((xmllights = xmllights->NextSibling()));
     }
 
     else
       assert_node(child, "camera or shapes or lights.");
   }
-  while (child = child->NextSibling());
+  while ((child = child->NextSibling()));
 
   // FIXME: type
   Scene* res = new Scene(*camera, *shapes, *lights);

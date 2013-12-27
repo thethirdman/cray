@@ -35,7 +35,7 @@ Camera* Camera::parse(tinyxml2::XMLNode* node, int x, int y)
       std::cerr << "Error: unexpected vec named: " << elt->Attribute("name") << std::endl;
       exit(1);
     }
-  } while (node = node->NextSibling());
+  } while ((node = node->NextSibling()));
 
   if (!setPos || !setDir || !setUp)
   {
