@@ -2,9 +2,17 @@
 # define UTILS_HH_
 
 #include <cv.h>
+#include <tinyxml2.h>
+#include <iostream>
 #include "ray.hh"
 
-// Utility functions
+// Parsing utility functions
+
+void assert_node(tinyxml2::XMLNode* node, std::string expName);
+bool is_named(std::string name, tinyxml2::XMLNode* node);
+cv::Vec3d parseVec(tinyxml2::XMLElement* elt);
+
+// Vector utility functions
 
 // Compute a random value between 0 and 1
 double normal_rand(void);

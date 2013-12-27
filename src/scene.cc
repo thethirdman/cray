@@ -1,6 +1,53 @@
 #include "scene.hh"
 #include <limits>
 
+Scene* Scene::parse(char* path, int x, int y)
+{
+  Camera* camera = NULL;
+  std::vector<Shape*>* shapes = new std::vector<Shape*>();
+  std::vector<Light>* lights = new std::vector<Light>();
+
+  tinyxml2::XMLDocument doc;
+  doc.LoadFile(path);
+
+  tinyxml2::XMLNode* rootnode = doc.FirstChild();
+  assert_node(rootnode, "scene");
+
+  tinyxml2::XMLNode* child = rootnode->FirstChild();
+  do
+  {
+    if (is_named("camera", child))
+      camera = Camera::parse(child->FirstChild(), x, y);
+    else if (is_named("shapes", child))
+    {
+      tinyxml2::XMLNode* xmlshapes = child->FirstChild();
+      do
+      {
+        shapes->push_back(Shape::parse(xmlshapes));
+      }
+      while (xmlshapes = xmlshapes->NextSibling());
+    }
+    else if (is_named("lights", child))
+    {
+      tinyxml2::XMLNode* xmllights = child->FirstChild();
+      do
+      {
+        lights->push_back(Light::parse(xmllights));
+      }
+      while (xmllights = xmllights->NextSibling());
+    }
+
+    else
+      assert_node(child, "camera or shapes or lights.");
+  }
+  while (child = child->NextSibling());
+
+  // FIXME: type
+  Scene* res = new Scene(*camera, *shapes, *lights);
+  res->setDims(x,y);
+  return res;
+}
+
 void Scene::setDims(int x, int y)
 {
   canvas_ = std::vector<Color>(x * y);

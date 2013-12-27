@@ -2,6 +2,7 @@
 # define COLOR_HH_
 
 #include <cv.h>
+#include <tinyxml2.h>
 
 // This files describe how a color is represented in our raytracer.
 // For simplicity purposes, color values are represented as a double between
@@ -14,6 +15,7 @@
 class Color
 {
   public:
+    static Color parse(tinyxml2::XMLElement* node);
     Color(int r, int g, int b)
     {
       r_ = r/255.;

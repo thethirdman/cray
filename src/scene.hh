@@ -4,6 +4,8 @@
 #include <string>
 #include <cv.h>
 #include <highgui.h>
+#include <tinyxml2.h>
+#include "utils.hh"
 #include "camera.hh"
 #include "shape.hh"
 #include "light.hh"
@@ -20,6 +22,9 @@ class Scene
   public:
     Scene(Camera& cam, std::vector<Shape*>& shapes, std::vector<Light>& lights)
       : cam_(cam), shapes_(shapes), lights_(lights) {} // FIXME: remove
+
+    // Returns a fresh scene parsed from a file
+    static Scene* parse(char* path, int x, int y);
 
     // Sets the dimensions of the image to render
     void setDims(int x, int y);

@@ -6,10 +6,12 @@
 // to make soft shadows ?
 
 #include "shape.hh"
+#include <tinyxml2.h>
 
 class Light
 {
   public:
+    static Light parse(tinyxml2::XMLNode* node);
     Light(cv::Vec3d orig, Color color) : orig_(orig), color_(color) {}
     Light() {} // FIXME
 

@@ -73,7 +73,7 @@ class Sphere : public Shape
         else if (t2 > 0)
           mint = t2;
         else
-          return false;
+          return NULL;
 
         // FIXME: for now, only one of the two solutiosn is returned
         // it is the smallest distance. Not sure if this is a good idea
@@ -99,7 +99,7 @@ class Plane : public Shape
 {
   public:
     Plane(cv::Vec3d pt1, cv::Vec3d dir1, cv::Vec3d dir2, Color color, double refl)
-    : Shape(color, refl), pt1_(pt1), dir1_(dir1), dir2_(dir2)
+    : pt1_(pt1), dir1_(dir1), dir2_(dir2), Shape(color, refl)
     {
       normal_ = normalize(dir1.cross(dir2));
     }
@@ -134,6 +134,7 @@ class Plane : public Shape
 class Triangle : public Shape
 {
   public:
+    static Triangle* parse(tinyxml2::XMLNode* node);
     Triangle(cv::Vec3d pt1, cv::Vec3d pt2, cv::Vec3d pt3, Color color, double refl)
       : Shape(color, refl), pt1_(pt1), pt2_(pt2), pt3_(pt3)
       {

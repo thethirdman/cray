@@ -24,6 +24,8 @@ class Camera
       fovy_ = ((double) y_)/((double) x_) * M_PI_4;
     }
 
+    static Camera* parse(tinyxml2::XMLNode* node, int x, int y);
+
     std::vector<Ray>& getRays(void)
     {
       std::vector<Ray>* rayMat = new std::vector<Ray> (x_ * y_);

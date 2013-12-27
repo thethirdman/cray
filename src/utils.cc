@@ -1,5 +1,48 @@
 #include "utils.hh"
 
+// Parsing utilities
+
+void assert_node(tinyxml2::XMLNode* node, std::string expName)
+{
+  if (node)
+  {
+    const char* nodeName = node->ToElement()->Name();
+
+    if (expName.compare(nodeName) != 0)
+    {
+      std::cerr << "Error: invalid node " << nodeName << ", expected node " << expName << std::endl;
+      exit(1);
+    }
+  }
+  else
+    std::cerr << "Error: expecting node " << expName << std::endl;
+}
+
+bool is_named(std::string name, tinyxml2::XMLNode* node)
+{
+  return (name.compare(node->ToElement()->Name()) == 0);
+}
+
+cv::Vec3d parseVec(tinyxml2::XMLElement* elt)
+{
+  double x = nan("");
+  double y = nan("");
+  double z = nan("");
+
+  elt->QueryDoubleAttribute("x", &x);
+  elt->QueryDoubleAttribute("y", &y);
+  elt->QueryDoubleAttribute("z", &z);
+
+  if (isnan(x) || isnan(y) || isnan(z))
+  {
+    std::cerr << "Error: missing attribute in vec, either x, y or z" << std::endl;
+    exit(1);
+  }
+  return cv::Vec3d(x,y,z);
+}
+
+
+// Vector utilities
 double normal_rand(void)
 {
   return (double) (rand())/static_cast<double>(RAND_MAX);
