@@ -21,7 +21,10 @@ file (
 
 add_definitions(-g)
 
+add_subdirectory(tinyxml)
+include_directories(tinyxml)
+
 add_executable (cray ${SOURCE_FILES} ${HEADER_FILES})
-target_link_libraries(cray ${OpenCV_LIBS} )
+target_link_libraries(cray ${OpenCV_LIBS} tinyxml2)
 
 install (TARGETS cray DESTINATION bin)
