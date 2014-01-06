@@ -44,6 +44,17 @@ Color operator+(Color rgb, double val)
               , rgb.max());
 }
 
+Color satSum(Color a, Color other)
+{
+  double new_r = a.r()+ other.r();
+  double new_g = a.g()+ other.g();
+  double new_b = a.b()+ other.b();
+  return Color( (new_r > 1. ? 1. : new_r)
+              , (new_g > 1. ? 1. : new_g)
+              , (new_b > 1. ? 1. : new_b)
+              , 1.);
+}
+
 Color operator-(Color rgb, double val)
 {
   if (val < 0)

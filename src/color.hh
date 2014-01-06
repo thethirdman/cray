@@ -60,6 +60,8 @@ Color operator* (Color rgb, double val);
 Color operator*(double val, Color rgb);
 Color operator* (Color a, Color other);
 
+Color satSum(Color a, Color other);
+
 
 Color operator/ (Color rgb, double c);
 #endif
