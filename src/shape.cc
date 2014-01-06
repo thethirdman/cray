@@ -20,7 +20,7 @@ Sphere* Sphere::parse(tinyxml2::XMLNode* node)
 {
   double radius = nan("");
   cv::Vec3d pos;
-  Color col;
+  Material* mat;
 
   node->ToElement()->QueryDoubleAttribute("r", &radius);
   if (isnan(radius))
@@ -35,8 +35,8 @@ Sphere* Sphere::parse(tinyxml2::XMLNode* node)
     tinyxml2::XMLElement* elt = child->ToElement();
     if (is_named("vec", child) && elt->Attribute("name","pos"))
       pos = parseVec(elt);
-    else if (is_named("color", child))
-      col = Color::parse(elt);
+    else if (is_named("material", child))
+      mat = Material::parse(elt);
     else
     {
       std::cerr << "Error: invalid node " << child->ToElement()->Name() << std::endl;
@@ -46,7 +46,7 @@ Sphere* Sphere::parse(tinyxml2::XMLNode* node)
   while ((child = child->NextSibling()));
 
   // FIXME: refl value
-  return new Sphere(pos, col, radius, 0.3);
+  return new Sphere(pos, *mat, radius, 0.3);
 }
 
 Plane* Plane::parse(tinyxml2::XMLNode* node)
@@ -54,7 +54,7 @@ Plane* Plane::parse(tinyxml2::XMLNode* node)
   cv::Vec3d pos;
   cv::Vec3d dir1;
   cv::Vec3d dir2;
-  Color col;
+  Material* mat;
 
   tinyxml2::XMLNode* child = node->FirstChild();
   do
@@ -62,8 +62,8 @@ Plane* Plane::parse(tinyxml2::XMLNode* node)
     tinyxml2::XMLElement* elt = child->ToElement();
     if (is_named("vec", child) && elt->Attribute("name","pos"))
       pos = parseVec(elt);
-    else if (is_named("color", child))
-      col = Color::parse(elt);
+    else if (is_named("material", child))
+      mat = Material::parse(elt);
     else if (is_named("vec", child) && elt->Attribute("name", "dir1"))
       dir1 = parseVec(elt);
     else if (is_named("vec", child) && elt->Attribute("name", "dir2"))
@@ -77,7 +77,7 @@ Plane* Plane::parse(tinyxml2::XMLNode* node)
   while ((child = child->NextSibling()));
 
   // FIXME: refl value
-  return new Plane(pos,dir1,dir2, col, 0);
+  return new Plane(pos,dir1,dir2, *mat, 0);
 }
 
 Triangle* Triangle::parse(tinyxml2::XMLNode* node)
@@ -85,7 +85,7 @@ Triangle* Triangle::parse(tinyxml2::XMLNode* node)
   cv::Vec3d pt1;
   cv::Vec3d pt2;
   cv::Vec3d pt3;
-  Color col;
+  Material* mat;
 
   tinyxml2::XMLNode* child = node->FirstChild();
   do
@@ -105,8 +105,8 @@ Triangle* Triangle::parse(tinyxml2::XMLNode* node)
         std::cerr << "Error: invalid name for vec " << elt->Attribute("name") << std::endl;
       }
     }
-    else if (is_named("color", child))
-      col = Color::parse(elt);
+    else if (is_named("material", child))
+      mat = Material::parse(elt);
     else
     {
       std::cerr << "Error: invalid node " << child->ToElement()->Name() << std::endl;
@@ -115,5 +115,5 @@ Triangle* Triangle::parse(tinyxml2::XMLNode* node)
   }
   while ((child = child->NextSibling()));
 
-  return new Triangle(pt1,pt2,pt3,col, 0.5);
+  return new Triangle(pt1,pt2,pt3, *mat, 0.5);
 }

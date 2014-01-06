@@ -147,7 +147,7 @@ Color Scene::render_light(Ray &ray, cv::Vec3d intersection, Light& l, Shape& sha
 
   // Reflection rendering
   // We launch the reflected ray
-  Ray refl_ray = shape.reflect(Ray(intersection, ray.dir()));
+  /*Ray refl_ray = shape.reflect(Ray(intersection, ray.dir()));
   Color refl_color = shape.getColor();
   if (depth < 1 && shape.refl() > 0)
   {
@@ -157,7 +157,7 @@ Color Scene::render_light(Ray &ray, cv::Vec3d intersection, Light& l, Shape& sha
 
     if (refl_color.max() != 0)
       color = ((1. - refl_coef)*color) + (refl_coef*refl_color);
-  }
+  }*/
   return color;
 }
 

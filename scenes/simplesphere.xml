@@ -7,7 +7,12 @@
   <shapes>
     <sphere r="0.5">
       <vec name="pos" x="0" y="0" z="5"/>
-      <color r="1" g="1" b="0"/>
+      <material type="simple">
+        <color name="ambient" r="1" g="1" b="0"/>
+        <color name="diffuse" r="1" g="1" b="0"/>
+        <color name="specular" r="1" g="1" b="1"/>
+        <brilliancy value="4"/>
+      </material>
     </sphere>
   </shapes>
   <lights>

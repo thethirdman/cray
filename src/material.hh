@@ -20,26 +20,26 @@ using MaterialFunctor = std::function<Color(int, int)>;
  *  2. specular lightning coefficient (between 0 and 1, inclusive);
  *  3. brilliancy (more than 1, inclusive).
  */
-using PhongBundle = std::array<float, 4>;
-
 class Material
 {
 public:
-    Material(MaterialFunctor, const PhongBundle&);
+    Material(MaterialFunctor, Color& ambient, Color& diffuse, Color& specular, float brilliancy);
+
+    Material() { };
+
+    static Material* parse(tinyxml2::XMLNode* node);
 
     virtual ~Material();
 
-    inline float get_ambiant_coef() const;
-    inline float get_diffuse_coef() const;
-    inline float get_specular_coef() const;
+    inline Color get_ambient_coef() const;
+    inline Color get_diffuse_coef() const;
+    inline Color get_specular_coef() const;
     inline float get_brilliancy() const;
-    PhongBundle get_phongbundle() const;
 
-    inline void set_ambiant_coef(float);
-    inline void set_diffuse_coef(float);
-    inline void set_specular_coef(float);
+    inline void set_ambient_coef(Color);
+    inline void set_diffuse_coef(Color);
+    inline void set_specular_coef(Color);
     inline void set_brilliancy(float);
-    void set_phongbundle(const PhongBundle&);
 
     const MaterialFunctor& get_functor() const;
 
@@ -49,9 +49,9 @@ protected:
     const MaterialFunctor func_;
 
     /// Illumination coefficients
-    float ambient_coef_;
-    float diffuse_coef_;
-    float specular_coef_;
+    Color ambient_coef_;
+    Color diffuse_coef_;
+    Color specular_coef_;
     float brilliancy_;
 };
 

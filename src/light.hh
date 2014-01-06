@@ -7,6 +7,7 @@
 
 #include "shape.hh"
 #include <tinyxml2.h>
+#include <cmath>
 
 class Light
 {
@@ -30,15 +31,16 @@ class Light
       Ray tmp = light_ray.op_dir();
       Ray refl_light = shape.reflect(tmp);
       double phong = clamp_zero(refl_light.dir().dot(normalize(ray.dir() - light_ray.orig())));
-      phong *= phong;
-      phong *= phong;
 
       // Ambient light
       double ambient = 0.1;
-      double total_light = clamp_one(ambient + diffval + phong);
-      Color color = total_light * color_ * shape.getColor();
+      Material mat = shape.getMaterial();
+      Color color = satSum(
+                      satSum((ambient * mat.get_ambient_coef()),
+                             (diffval * mat.get_diffuse_coef())),
+                      pow(phong, mat.get_brilliancy()) * mat.get_specular_coef());
 
-      return color;
+      return color * color_;
     }
 
   private:

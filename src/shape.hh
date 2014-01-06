@@ -4,6 +4,7 @@
 #include "ray.hh"
 #include "utils.hh"
 #include "color.hh"
+#include "material.hh"
 
 // Abstract class shape
 class Shape
@@ -17,9 +18,9 @@ class Shape
     // The normal vector to a shape at the intersection point pt
     virtual cv::Vec3d normal(Ray& ray) = 0;
 
-    Color getColor(void)
+    Material getMaterial(void)
     {
-      return color_;
+      return material_;
     }
     double refl(void) { return refl_coef_;}
 
@@ -38,8 +39,8 @@ class Shape
       return Ray (ray.orig() + normal_dir * shift, normalize(refl_dir));
     }
   protected:
-    Shape(Color col, double refl) : color_(col), refl_coef_(refl) {}
-    Color color_;
+    Shape(Material& mat, double refl) : material_(mat), refl_coef_(refl) {}
+    Material& material_;
     double refl_coef_;
 };
 
@@ -47,8 +48,8 @@ class Sphere : public Shape
 {
   public:
     static Sphere* parse(tinyxml2::XMLNode* node);
-    Sphere(cv::Vec3d c, Color color, double r, double refl)
-        : Shape(color, refl), center_(c), radius_(r) {}
+    Sphere(cv::Vec3d c, Material& mat, double r, double refl)
+        : Shape(mat, refl), center_(c), radius_(r) {}
 
     bool intersect(Ray ray, cv::Vec3d& intersect, double& dist)
     {
@@ -101,8 +102,8 @@ class Plane : public Shape
 {
   public:
     static Plane* parse(tinyxml2::XMLNode* node);
-    Plane(cv::Vec3d pt1, cv::Vec3d dir1, cv::Vec3d dir2, Color color, double refl)
-    : Shape(color, refl), pt1_(pt1), dir1_(dir1), dir2_(dir2)
+    Plane(cv::Vec3d pt1, cv::Vec3d dir1, cv::Vec3d dir2, Material& mat, double refl)
+    : Shape(mat, refl), pt1_(pt1), dir1_(dir1), dir2_(dir2)
     {
       normal_ = normalize(dir1.cross(dir2));
     }
@@ -138,8 +139,8 @@ class Triangle : public Shape
 {
   public:
     static Triangle* parse(tinyxml2::XMLNode* node);
-    Triangle(cv::Vec3d pt1, cv::Vec3d pt2, cv::Vec3d pt3, Color color, double refl)
-      : Shape(color, refl), pt1_(pt1), pt2_(pt2), pt3_(pt3)
+    Triangle(cv::Vec3d pt1, cv::Vec3d pt2, cv::Vec3d pt3, Material& mat, double refl)
+      : Shape(mat, refl), pt1_(pt1), pt2_(pt2), pt3_(pt3)
       {
         normal_ = normalize((pt3_ - pt2_).cross(pt1_ - pt3_));
       }

@@ -6,17 +6,17 @@
 
 /* GETTERS */
 
-float Material::get_ambiant_coef() const
+Color Material::get_ambient_coef() const
 {
     return ambient_coef_;
 }
 
-float Material::get_diffuse_coef() const
+Color Material::get_diffuse_coef() const
 {
     return diffuse_coef_;
 }
 
-float Material::get_specular_coef() const
+Color Material::get_specular_coef() const
 {
     return specular_coef_;
 }
@@ -28,21 +28,18 @@ float Material::get_brilliancy() const
 
 /* SETTERS */
 
-void Material::set_ambiant_coef(float coef)
+void Material::set_ambient_coef(Color coef)
 {
-    assert(coef >= 0 && coef <= 1);
     ambient_coef_ = coef;
 }
 
-void Material::set_diffuse_coef(float coef)
+void Material::set_diffuse_coef(Color coef)
 {
-    assert(coef >= 0 && coef <= 1);
     diffuse_coef_ = coef;
 }
 
-void Material::set_specular_coef(float coef)
+void Material::set_specular_coef(Color coef)
 {
-    assert(coef >= 0 && coef <= 1);
     specular_coef_ = coef;
 }
 

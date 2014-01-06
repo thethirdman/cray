@@ -9,9 +9,9 @@
  * Sorry for "const" :D
  */
 BitmapTexture::BitmapTexture(const cv::Mat& texture,
-                             const PhongBundle& pb,
+                             Color& ambient, Color& diffuse, Color& specular, float brilliancy,
                              const BitmapTextureTranslation& translation)
-    : Material(nullptr, pb),
+    : Material(nullptr, ambient, diffuse, specular, brilliancy),
       texture_(texture),
       translation_(translation),
       x_max_(texture.cols - 1),
