@@ -1,4 +1,5 @@
 #include "utils.hh"
+#include <boost/math/constants/constants.hpp>
 
 // Parsing utilities
 
@@ -39,6 +40,20 @@ cv::Vec3d parseVec(tinyxml2::XMLElement* elt)
     exit(1);
   }
   return cv::Vec3d(x,y,z);
+}
+
+cv::Vec3d randSphere(cv::Vec3d center, double radius, double start1, double start2, double len)
+{
+  double u = normal_rand() * len + start1;
+  double v = normal_rand() * len + start2;
+
+  double theta = 2 * boost::math::constants::pi<double>() * u;
+  double phi = acos(2 * v - 1);
+
+  return center
+    + cv::Vec3d (radius * sin(phi) * cos(theta),
+                radius *  cos(phi) * sin(theta),
+                radius * cos(phi));
 }
 
 

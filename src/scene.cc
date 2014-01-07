@@ -129,6 +129,7 @@ void Scene::render(void)
   for (int j = 0; j < y_; j++)
     for (int i = 0; i < x_; i++)
     {
+      int max = x_ * y_;
       int cur = j * x_ + i;
       //std::cout << (int) (100 * ((float) cur)/((float) max)) << "% (" << cur << "/" << max << ")\r" << std::flush;
       canvas_[j*x_ + i] = ray_launch(mat[j * x_ + i], 0);
