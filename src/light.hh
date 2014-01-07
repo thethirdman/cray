@@ -59,14 +59,15 @@ class Light
         }
 
         Material mat = shape.getMaterial();
-        //std::cout << "Colors: " << mat.color_at(0,0).r() << std::endl;
         double diffcoef = mat.get_diffuse_coef() * clamp_zero(shape.normal(light_ray).dot(light_ray.dir()) - shadowed);
 
         Ray refl_light = shape.reflect(light_ray.op_dir());
         double phong = mat.get_specular_coef() * clamp_zero(refl_light.dir().dot(normalize(ray.dir() - light_ray.orig())));
 
-        double ambient = mat.get_ambient_coef();
-        total_color = total_color + diffcoef * mat.color_at(0,0) + phong * Color(1,1,1) + ambient * mat.color_at(0,0);
+        Color acolor = mat.get_ambient_coef() * mat.color_at(0,0);
+        Color dcolor = diffcoef * mat.get_diffuse_coef() * mat.color_at(0,0);
+        Color scolor = pow(phong, mat.get_brilliancy()) * Color(1,1,1);
+        total_color = total_color + satSum(satSum(acolor, dcolor), scolor);
 
         if (samples_ != 0)
         {
