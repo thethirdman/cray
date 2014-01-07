@@ -7,7 +7,7 @@
   <shapes>
     <sphere r="0.5">
       <vec name="pos" x="-1" y="0.25" z="5"/>
-      <material type="simple">
+<material type="simple" ambient="0.1" diffuse="1" specular="1" brilliancy="4">
         <color name="ambient" r="1" g="1" b="0"/>
         <color name="diffuse" r="1" g="1" b="0"/>
         <color name="specular" r="1" g="1" b="1"/>
@@ -16,64 +16,46 @@
     </sphere>
     <sphere r="0.75">
       <vec name="pos" x="1" y="0" z="7"/>
-      <material type="simple">
-        <color name="ambient" r="1" g="0" b="0"/>
-        <color name="diffuse" r="1" g="0" b="0"/>
-        <color name="specular" r="1" g="1" b="1"/>
-        <brilliancy value="4"/>
+<material type="simple" ambient="0.1" diffuse="1" specular="1" brilliancy="4">
+        <color r="1" g="0" b="0"/>
       </material>
     </sphere>
     <sphere r="0.5">
       <vec name="pos" x="0" y="-1" z="7"/>
-      <material type="simple">
-        <color name="ambient" r="0" g="1" b="0"/>
-        <color name="diffuse" r="0" g="1" b="0"/>
-        <color name="specular" r="1" g="1" b="1"/>
-        <brilliancy value="4"/>
+<material type="simple" ambient="0.1" diffuse="1" specular="1" brilliancy="4">
+        <color r="0" g="1" b="0"/>
       </material>
     </sphere>
     <plane>
       <vec name="pos"  x="0" y="0.75" z="0"/>
       <vec name="dir1" x="1" y="0"    z="0"/>
       <vec name="dir2" x="0" y="0"    z="1"/>
-      <material type="simple">
-        <color name="ambient" r="1" g="1" b="1"/>
-        <color name="diffuse" r="1" g="1" b="1"/>
-        <color name="specular" r="1" g="1" b="1"/>
-        <brilliancy value="4"/>
+<material type="simple" ambient="0.1" diffuse="1" specular="1" brilliancy="4">
+        <color r="1" g="1" b="1"/>
       </material>
     </plane>
     <plane>
       <vec name="pos"  x="-3" y="0" z="0"/>
       <vec name="dir1" x="0" y="1"    z="0"/>
       <vec name="dir2" x="0" y="0"    z="1"/>
-      <material type="simple">
-        <color name="ambient"  r="1" g="0.78" b="0.78"/>
-        <color name="diffuse"  r="1" g="0.78" b="0.78"/>
-        <color name="specular" r="1" g="1" b="1"/>
-        <brilliancy value="4"/>
+<material type="simple" ambient="0.1" diffuse="1" specular="1" brilliancy="4">
+        <color r="1" g="0.78" b="0.78"/>
       </material>
     </plane>
     <plane>
       <vec name="pos"  x="3" y="0" z="0"/>
       <vec name="dir1" x="0" y="1"    z="0"/>
       <vec name="dir2" x="0" y="0"    z="1"/>
-      <material type="simple">
-        <color name="ambient"  r="0.78" g="1" b="0.78"/>
-        <color name="diffuse"  r="0.78" g="1" b="0.78"/>
-        <color name="specular" r="1" g="1" b="1"/>
-        <brilliancy value="4"/>
+<material type="simple" ambient="0.1" diffuse="1" specular="1" brilliancy="4">
+        <color r="0.78" g="1" b="0.78"/>
       </material>
     </plane>
     <plane>
       <vec name="pos"  x="0" y="0" z="10"/>
       <vec name="dir1" x="0" y="1"    z="0"/>
       <vec name="dir2" x="1" y="0"    z="0"/>
-      <material type="simple">
-        <color name="ambient"  r="0.78" g="0.78" b="1"/>
-        <color name="diffuse"  r="0.78" g="0.78" b="1"/>
-        <color name="specular" r="1" g="1" b="1"/>
-        <brilliancy value="4"/>
+<material type="simple" ambient="0.1" diffuse="1" specular="1" brilliancy="4">
+        <color r="0.78" g="0.78" b="1"/>
       </material>
     </plane>
     <plane>
@@ -81,38 +63,32 @@
       <vec name="dir1" x="1" y="0"    z="0"/>
       <vec name="dir2" x="0" y="0"    z="1"/>
       <material type="simple">
-        <color name="ambient"  r="0.78" g="0.78" b="1"/>
-        <color name="diffuse"  r="0.78" g="0.78" b="1"/>
-        <color name="specular" r="1" g="1" b="1"/>
-        <brilliancy value="4"/>
+        <color  r="0.78" g="0.78" b="1"/>
       </material>
     </plane>
     <triangle>
       <vec name="pt1" x="1.7" y="0" z="6.7"/>
       <vec name="pt2" x="1"   y="0.75" z="4"/>
       <vec name="pt3" x="3" y="0.75" z="7"/>
-      <material type="simple">
-        <color name="ambient"  r="1" g="1" b="0"/>
-        <color name="diffuse"  r="1" g="1" b="0"/>
-        <color name="specular" r="1" g="1" b="1"/>
-        <brilliancy value="4"/>
+<material type="simple" ambient="0.1" diffuse="1" specular="1" brilliancy="4">
+        <color r="1" g="1" b="0"/>
       </material>
     </triangle>
   </shapes>
   <lights>
-    <light>
+    <light r="1" samples="100">
       <vec name="pos" x="-2.9" y="-2.9" z="9.9"/>
       <color r="1" g="1" b="1"/>
     </light>
-    <light>
+    <light r="1" samples="100">
       <vec name="pos" x="-2.9" y="-2.9" z="0"/>
       <color r="1" g="1" b="1"/>
     </light>
-    <light>
+    <light r="1" samples="100">
       <vec name="pos" x="2.9" y="-2.9" z="9.9"/>
       <color r="1" g="1" b="1"/>
     </light>
-    <light>
+    <light r="1" samples="100">
       <vec name="pos" x="2.9" y="-2.9" z="0"/>
       <color r="1" g="1" b="1"/>
     </light>
