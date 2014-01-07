@@ -80,76 +80,15 @@ bool Scene::hit(Ray& ray, int& s_id, cv::Vec3d& best_hit, double& best_dist)
   return (shape_id != -1 ? true : false);
 }
 
-double Scene::soft_shadows_comp(Ray& lray, Shape& shape)
-{
-  // We first compute the number of rays we wanted to launch based on the
-  // normal to the intersection point: if it is close to 0, we may be on the
-  // border of an object, and more rays should be launched.
-  // FIXME: something sdirs is smaller that 0, which make ray_num false
-  double sdir = shape.normal(lray).dot(normalize(lray.dir()));
-
-  // The multiplication by 0 is here to disable the soft_shadows
-  int ray_num = 0 * (1. - sdir);
-  int hit_count = 0;
-
-  for (int  rn = 0; rn < ray_num; rn ++)
-  {
-    // We launch a ray with a random direction
-    cv::Vec3d shift = 50 * ((2 * cv::Vec3d(normal_rand(), normal_rand(), normal_rand())) - cv::Vec3d(1.0, 1.0, 1.0));
-    cv::Vec3d shift_dir = normalize(lray.dir() + shift);
-
-    // classic intersection check
-    cv::Vec3d intersect;
-    double dist;
-
-    if (shape.intersect(Ray(lray.orig(), shift_dir), intersect, dist))
-      if (dist > 0)
-        hit_count++;
-  }
-
-  // Hack to disable the soft shadows
-  if (ray_num == 0)
-    return 1.;
-
-  // We then do the mean over rays launched: if a lot of rays are launched, but
-  // few hit the shape, it means that we are on the border of the shape.
-  double shadowed = ((double) hit_count)/((double) ray_num);
-
-  // This return check is rubbish
-  return clamp_one(shadowed);
-}
-
 Color Scene::render_light(Ray &ray, cv::Vec3d intersection, Light& l, Shape& shape, int depth)
 {
-  // We define the ray from the shape to the light
-  cv::Vec3d dir_light = normalize(l.orig() - intersection);
-  double light_dist = cv::norm(l.orig() - intersection);
-  double shadowed = 0.0;
-
-  Ray light_ray (intersection, dir_light);
-  // If this ray its a shape, it shadowed.
-  for (unsigned int s = 0; s < shapes_.size(); s++)
-  {
-    cv::Vec3d hit;
-    double dist;
-
-    if (shapes_[s]->intersect(light_ray, hit, dist) && &shape != shapes_[s])
-    {
-      // If it is shadowed, we try a soft shadow rendering
-      //Ray foo (intersection, l.orig() - intersection);
-      if (dist < light_dist)
-        shadowed = 1;// soft_shadows_comp(foo, *shapes_[s]);
-    }
-  }
-
-  // FIXME: light ray could be recomputed for tidyness
-  Color color = l.illumination(shape, ray, light_ray, shadowed);
+  Color color = l.illumination(shape, ray, intersection, shapes_);
 
   // Reflection rendering
   // We launch the reflected ray
-  /*Ray refl_ray = shape.reflect(Ray(intersection, ray.dir()));
-  Color refl_color = shape.getColor();
-  if (depth < 1 && shape.refl() > 0)
+  Ray refl_ray = shape.reflect(Ray(intersection, ray.dir()));
+  Color refl_color = color;
+  if (depth < 0 && shape.refl() > 0)
   {
     // FIXME: make diffuse reflection
     refl_color = ray_launch(refl_ray, depth + 1);
@@ -157,7 +96,7 @@ Color Scene::render_light(Ray &ray, cv::Vec3d intersection, Light& l, Shape& sha
 
     if (refl_color.max() != 0)
       color = ((1. - refl_coef)*color) + (refl_coef*refl_color);
-  }*/
+  }
   return color;
 }
 
@@ -170,7 +109,7 @@ Color Scene::ray_launch(Ray& ray, int depth)
   // We first check for a hit with a shape
   cv::Vec3d intersection;
   double inter_dist;
-  
+
   Color result;
 
   // if there is a hit, we take into account the lights of the scene
@@ -178,7 +117,7 @@ Color Scene::ray_launch(Ray& ray, int depth)
     for (auto l : lights_)
       result = result + render_light(ray, intersection, l, *shapes_[shape_id], depth);
 
-  return result/lights_.size();
+  return result;
 }
 
 // For each ray, compute the color
@@ -189,7 +128,12 @@ void Scene::render(void)
 
   for (int j = 0; j < y_; j++)
     for (int i = 0; i < x_; i++)
+    {
+      int cur = j * x_ + i;
+      //std::cout << (int) (100 * ((float) cur)/((float) max)) << "% (" << cur << "/" << max << ")\r" << std::flush;
       canvas_[j*x_ + i] = ray_launch(mat[j * x_ + i], 0);
+    }
+  std::cout << std::endl;
 }
 
 

@@ -4,7 +4,7 @@ project (cray)
 
 find_package( OpenCV REQUIRED )
 
-set(CMAKE_CXX_FLAGS "-std=c++0x -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-std=c++0x -Ofast -Wall -Wextra")
 
 file (
   GLOB_RECURSE

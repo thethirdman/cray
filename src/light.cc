@@ -3,7 +3,12 @@ Light Light::parse(tinyxml2::XMLNode* node)
 {
   cv::Vec3d pos;
   Color col;
+  float radius = nan("");
+  int samples = 0;
 
+  tinyxml2::XMLElement* node_elt = node->ToElement();
+  node_elt->QueryFloatAttribute("r", &radius);
+  node_elt->QueryIntAttribute("samples", &samples);
   tinyxml2::XMLNode* child = node->FirstChild();
   do
   {
@@ -21,5 +26,8 @@ Light Light::parse(tinyxml2::XMLNode* node)
   while ((child = child->NextSibling()));
 
 
-  return Light(pos, col);
+  if (isnan(radius))
+    return Light(pos, col);
+  else
+    return Light(pos, radius, samples, col);
 }

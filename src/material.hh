@@ -26,16 +26,17 @@ class Material
 {
 public:
     Material(MaterialFunctor, const PhongBundle&);
+    static Material* parse(tinyxml2::XMLNode* node);
 
     virtual ~Material();
 
-    inline float get_ambiant_coef() const;
+    inline float get_ambient_coef() const;
     inline float get_diffuse_coef() const;
     inline float get_specular_coef() const;
     inline float get_brilliancy() const;
     PhongBundle get_phongbundle() const;
 
-    inline void set_ambiant_coef(float);
+    inline void set_ambient_coef(float);
     inline void set_diffuse_coef(float);
     inline void set_specular_coef(float);
     inline void set_brilliancy(float);

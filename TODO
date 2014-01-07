@@ -1,16 +1,19 @@
+Mandatory:
+  - Revert material
+  - Lumière avec volume
+  - Formes complexe (obj reader ?)
+  - Lumière ambiante - on a une base, faut-il faire plus ?
+  - Transparence
 
-Volumes:
-  - Plan
-  - Cube
-  - Cone
-  - Cylindre
+  DONE:
+    - Textures (couleur unies)
 
-Lumières:
-  - Phong++
-  - Radiosité (ça a l'air compliqué)
-  - Ombre diffuse (ce serait bien)
+Bonus:
+  - Textures ++ (sur les formes simples au moins)
+  - Plus de volumes (cylindre, cone ?)
+  - Parallelisme
 
-Textures:
-  - Procédurales (perlin, damier)
-  - Texture mapping
-  - Bumpmap
+Nettoyage:
+  - Refaire les vecteurs
+  - Refaire l'AA (pour l'instant, on utilise openCV)
+  - Virer l'utilisation de cv::mat
