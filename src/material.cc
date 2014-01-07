@@ -1,11 +1,11 @@
 #include <cassert>
-#include <tinyxml2.h>
 #include "material.hh"
-#include "utils.hh"
 
-Material::Material(MaterialFunctor func, Color& ambient, Color& diffuse, Color& specular, float brilliancy)
-  : func_(func), ambient_coef_(ambient), diffuse_coef_(diffuse),
-    specular_coef_(specular), brilliancy_(brilliancy)
+Material::Material(MaterialFunctor      func,
+                   const PhongBundle&   pb)
+    : func_(func),
+      ambient_coef_(pb[0]), diffuse_coef_(pb[1]),
+      specular_coef_(pb[2]), brilliancy_(pb[3])
 {
 }
 
@@ -16,64 +16,20 @@ const MaterialFunctor& Material::get_functor() const
     return func_;
 }
 
-Material* Material::parse(tinyxml2::XMLNode* node)
+PhongBundle Material::get_phongbundle() const
 {
-  tinyxml2::XMLElement* elt = node->ToElement();
+    return {{ ambient_coef_, diffuse_coef_, specular_coef_, brilliancy_ }};
+}
 
-  if (elt->Attribute("type", "simple"))
-  {
-    Color ambient;
-    Color diffuse;
-    Color specular;
-    float brilliancy = nan("");
+void Material::set_phongbundle(const PhongBundle& pb)
+{
+    assert(pb[0] >= 0 && pb[0] <= 1);
+    assert(pb[1] >= 0 && pb[1] <= 1);
+    assert(pb[2] >= 0 && pb[2] <= 1);
+    assert(pb[3] >= 1);
 
-    tinyxml2::XMLNode* child = node->FirstChild();
-    do
-    {
-      tinyxml2::XMLElement* celt = child->ToElement();
-      if (is_named("color", child))
-      {
-        Color tmp = Color::parse(celt);
-        if (celt->Attribute("name", "ambient"))
-          ambient = tmp;
-        else if (celt->Attribute("name", "diffuse"))
-          diffuse = tmp;
-        else if (celt->Attribute("name", "specular"))
-          specular = tmp;
-        else
-        {
-          std::cerr << "Error: invalid name " << celt->Attribute("name") << std::endl;
-          exit(1);
-        }
-
-      }
-      else if (is_named("brilliancy", child))
-      {
-        celt->QueryFloatAttribute("value", &brilliancy);
-      }
-      else
-      {
-        std::cerr << "Error: invalid node " << child->ToElement()->Name() << std::endl;
-        exit(1);
-      }
-    }
-    while ((child = child->NextSibling()));
-
-    return new Material(nullptr, ambient, diffuse, specular, brilliancy);
-  }
-  else if (elt->Attribute("type", "procedural"))
-  {
-    std::cerr << "Procedural texture not yet implemented" << std::endl;
-    exit(1);
-  }
-  else if (elt->Attribute("type", "bitmap"))
-  {
-    std::cerr << "Bitmap texture not yet implemented" << std::endl;
-    exit(1);
-  }
-  else
-  {
-    std::cerr << "Unrecognized Material of type: " << elt->Attribute("type") << std::endl;
-    exit(1);
-  }
+    ambient_coef_  = pb[0];
+    diffuse_coef_  = pb[1];
+    specular_coef_ = pb[2];
+    brilliancy_    = pb[3];
 }
