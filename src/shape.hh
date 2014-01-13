@@ -26,6 +26,8 @@ class Shape
     }
     double refl(void) { return refl_coef_;}
 
+    cv::Vec3d center(void) {return center_;}
+
     Ray reflect(Ray ray)
     {
       Ray op_ray = ray.op_dir();
@@ -44,6 +46,7 @@ class Shape
     Shape(Material& mat, double refl) : material_(mat), refl_coef_(refl) {}
     Material& material_;
     double refl_coef_;
+    cv::Vec3d center_;
     BBox bbox_;
 };
 
@@ -52,8 +55,12 @@ class Sphere : public Shape
   public:
     static Sphere* parse(tinyxml2::XMLNode* node);
     Sphere(cv::Vec3d c, Material& mat, double r, double refl)
-        : Shape(mat, refl), center_(c), radius_(r) {}
+        : Shape(mat, refl), radius_(r)
+    {
+      center_ = c;
+      cv::Vec3d radVec (radius_, radius_, radius_);
       bbox_ = BBox(center_ - radVec, center_ + radVec);
+    }
 
     bool intersect(Ray ray, cv::Vec3d& intersect, double& dist)
     {
@@ -98,7 +105,6 @@ class Sphere : public Shape
     }
 
   private:
-    cv::Vec3d center_;
     double radius_;
 };
 
@@ -116,6 +122,7 @@ class Plane : public Shape
       cv::Vec3d maxPt = std::numeric_limits<double>::max() * tdir;
 
       bbox_ = BBox(minPt, maxPt);
+      center_ = pt1;
     }
 
     bool intersect(Ray ray, cv::Vec3d& intersect, double& dist)
