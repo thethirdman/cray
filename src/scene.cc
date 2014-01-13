@@ -55,29 +55,10 @@ void Scene::setDims(int x, int y)
   y_ = y;
 }
 
-bool Scene::hit(Ray& ray, int& s_id, cv::Vec3d& best_hit, double& best_dist)
+Shape* Scene::hit(Ray& ray, cv::Vec3d& best_hit, double& best_dist)
 {
-  int shape_id = -1;
 
-  // For each shape, if we hit something, we check if it is the smallest
-  // distance we found yet.
-  for (unsigned int s = 0; s < shapes_.size(); s++)
-  {
-    cv::Vec3d intersect;
-    double dist;
-
-    if (shapes_[s]->intersect(ray, intersect, dist))
-    {
-      if (shape_id == -1 || (dist < best_dist))
-      {
-        shape_id = s;
-        best_hit = intersect;
-        best_dist = dist;
-      }
-    }
-  }
-  s_id = shape_id;
-  return (shape_id != -1 ? true : false);
+  return shapes_.intersect(ray, best_hit, best_dist);
 }
 
 Color Scene::render_light(Ray &ray, cv::Vec3d intersection, Light& l, Shape& shape, int depth)
@@ -86,6 +67,7 @@ Color Scene::render_light(Ray &ray, cv::Vec3d intersection, Light& l, Shape& sha
 
   // Reflection rendering
   // We launch the reflected ray
+  // FIXME: reflection (shift)
   Ray refl_ray = shape.reflect(Ray(intersection, ray.dir()));
   Color refl_color = color;
   if (depth < 0 && shape.refl() > 0)
@@ -95,7 +77,7 @@ Color Scene::render_light(Ray &ray, cv::Vec3d intersection, Light& l, Shape& sha
     double refl_coef = shape.refl();
 
     if (refl_color.max() != 0)
-      color = ((1. - refl_coef)*color) + (refl_coef*refl_color);
+      color = ponderate(color, 1. - refl_coef) + ponderate(refl_color, refl_coef);
   }
   return color;
 }
@@ -105,7 +87,7 @@ Color Scene::render_light(Ray &ray, cv::Vec3d intersection, Light& l, Shape& sha
 Color Scene::ray_launch(Ray& ray, int depth)
 {
 
-  int shape_id;
+  Shape* shape;
   // We first check for a hit with a shape
   cv::Vec3d intersection;
   double inter_dist;
@@ -113,9 +95,9 @@ Color Scene::ray_launch(Ray& ray, int depth)
   Color result;
 
   // if there is a hit, we take into account the lights of the scene
-  if (hit(ray, shape_id, intersection, inter_dist))
+  if ((shape = hit(ray, intersection, inter_dist)))
     for (auto l : lights_)
-      result = result + render_light(ray, intersection, l, *shapes_[shape_id], depth);
+      result = result + render_light(ray, intersection, l, *shape, depth); // FIXME
 
   return result;
 }
@@ -126,12 +108,17 @@ void Scene::render(void)
   std::cout << "RENDER" << std::endl;
   std::vector<Ray>& mat = cam_.getRays();
 
+  int max = x_ * y_;
+  int prev = -1;
+  int cur = 0;
   for (int j = 0; j < y_; j++)
     for (int i = 0; i < x_; i++)
     {
-      int max = x_ * y_;
-      int cur = j * x_ + i;
-      //std::cout << (int) (100 * ((float) cur)/((float) max)) << "% (" << cur << "/" << max << ")\r" << std::flush;
+      cur = j * x_ + i;
+      int percent = (int) (100 * ((float) cur)/((float) max));
+      if (percent != prev)
+        std::cout << percent << "% (" << cur << "/" << max << ")\r" << std::flush;
+      prev = percent;
       canvas_[j*x_ + i] = ray_launch(mat[j * x_ + i], 0);
     }
   std::cout << std::endl;

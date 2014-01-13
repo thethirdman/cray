@@ -6,6 +6,7 @@
 // to make soft shadows ?
 
 #include "shape.hh"
+#include "kdtree.hh"
 #include <tinyxml2.h>
 #include <cmath>
 
@@ -29,7 +30,7 @@ class Light
     cv::Vec3d orig(void) {return orig_;}
     Color getColor(void) {return color_;}
 
-    Color illumination(Shape& shape, Ray& ray, cv::Vec3d intersection, std::vector<Shape*>& shapes)
+    Color illumination(Shape& shape, Ray& ray, cv::Vec3d intersection, KDTree& shapes)
     {
       cv::Vec3d cur_orig = orig_;
       Color total_color (0,0,0,0);
@@ -37,37 +38,35 @@ class Light
       int max = samples_;
       for (int i = 0; i < max * max + 1; i++)
       {
-        cv::Vec3d dir_light = normalize(cur_orig - intersection);
+        cv::Vec3d dir_light = normalize(intersection - cur_orig);
         double light_dist = cv::norm(cur_orig - intersection);
         double shadowed = 0.0;
-        Ray light_ray (intersection, dir_light);
+        Ray light_ray (cur_orig , dir_light);
+        const double shift = std::numeric_limits<double>::epsilon() * 2048.0;
+        Ray shadow_ray (intersection + shift * dir_light, -dir_light);
+        Ray shifted_ray (intersection + shift * -dir_light, -dir_light);
 
         // If this ray hits a shape, it shadowed.
-        for (unsigned int s = 0; s < shapes.size(); s++)
-        {
-          cv::Vec3d hit;
-          double dist;
+        cv::Vec3d hit;
+        double dist;
 
-          if (shapes[s]->intersect(light_ray, hit, dist) && &shape != shapes[s])
-          {
-            if (dist < light_dist)
-            {
-              shadowed = 1;
-              break;
-            }
-          }
+        if (shapes.intersect(shifted_ray, hit, dist))
+        {
+          if (dist < light_dist)
+            shadowed = 1;
         }
 
         Material mat = shape.getMaterial();
-        double diffcoef = mat.get_diffuse_coef() * clamp_zero(shape.normal(light_ray).dot(light_ray.dir()) - shadowed);
+        double diffcoef = mat.get_diffuse_coef() * clamp_zero(shape.normal(shadow_ray).dot(-light_ray.dir()) - shadowed);
 
-        Ray refl_light = shape.reflect(light_ray.op_dir());
-        double phong = mat.get_specular_coef() * clamp_zero(refl_light.dir().dot(normalize(ray.dir() - light_ray.orig())));
+        Ray refl_light = shape.reflect(light_ray);
+        double phong = (diffcoef <= 0 ? 0
+            : mat.get_specular_coef() * clamp_zero(refl_light.dir().dot(normalize(ray.dir() - intersection))));
 
         Color acolor = mat.get_ambient_coef() * mat.color_at(0,0);
         Color dcolor = diffcoef * mat.get_diffuse_coef() * mat.color_at(0,0);
         Color scolor = pow(phong, mat.get_brilliancy()) * Color(1,1,1);
-        total_color = total_color + satSum(satSum(acolor, dcolor), scolor);
+        total_color  = total_color + satSum(satSum(acolor, dcolor), scolor);
 
         if (samples_ != 0)
         {
@@ -76,8 +75,7 @@ class Light
           double invmax = 1/static_cast<double>(max);
           cur_orig = randSphere(orig_, radius_, shift1 * invmax, shift2 * invmax, invmax);
         }
-    }
-
+      }
       return total_color * color_;
     }
     int samples(void) {return samples_;}

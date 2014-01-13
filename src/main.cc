@@ -29,7 +29,6 @@ int main(int argc, char** argv)
 
   Scene* scene = Scene::parse(argv[1], realx, realy);
   scene->render();
-
   scene->save(argv[2]);
 
   return 0;

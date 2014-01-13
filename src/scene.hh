@@ -8,7 +8,9 @@
 #include "utils.hh"
 #include "camera.hh"
 #include "shape.hh"
+#include "obj.hh"
 #include "light.hh"
+#include "kdtree.hh"
 
 // The size factor is used for supersampling. Supersampling is a technique used
 // in order to have simple anti-aliasing on a scene. It creates a bigger image
@@ -21,7 +23,11 @@ class Scene
 {
   public:
     Scene(Camera& cam, std::vector<Shape*>& shapes, std::vector<Light>& lights)
-      : cam_(cam), shapes_(shapes), lights_(lights) {} // FIXME: remove
+      : cam_(cam), shapes_(), lights_(lights)
+    {
+      std::cout << "Scene: " << std::endl;
+      shapes_.buildTree(shapes);
+    }
 
     // Returns a fresh scene parsed from a file
     static Scene* parse(char* path, int x, int y);
@@ -35,13 +41,16 @@ class Scene
     // Saves canvas_ into fname
     void save(std::string fname);
 
+    KDTree& shapes() {return shapes_;}
+
   private:
     // Launches a ray into a scene, and tries to hit a shape. Returns the
     // closest shape hit, with the location of the intersection point and its
     // distance to the origin of the ray. s_id represents the shape that is
     // hit. If no hit, returns NULL and s_id is set to -1
     // FIXME: better return type ?
-    bool hit(Ray& ray, int& s_id, cv::Vec3d& intersect, double& dist);
+    //bool hit(Ray& ray, int& s_id, cv::Vec3d& intersect, double& dist);
+    Shape* hit(Ray& ray, cv::Vec3d& best_hit, double& best_dist);
 
     Color render_light(Ray &ray, cv::Vec3d intersection, Light& l, Shape& shape, int depth);
     /// Does the complete rendering of the scene for a given ray.
@@ -65,7 +74,7 @@ class Scene
     // The shapes of the scene
     // TODO: later, instead of using a vector, we should use a better
     // data-structure such as a BSP
-    std::vector<Shape*>& shapes_; // FIXME: have real structure after
+    KDTree shapes_; // FIXME: have real structure after
 
     // The lights illuminating the scene
     std::vector<Light>& lights_;
