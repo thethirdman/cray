@@ -5,6 +5,7 @@
 #include "utils.hh"
 #include "color.hh"
 #include "material.hh"
+#include "bbox.hh"
 
 // Abstract class shape
 class Shape
@@ -17,6 +18,7 @@ class Shape
 
     // The normal vector to a shape at the intersection point pt
     virtual cv::Vec3d normal(Ray& ray) = 0;
+    BBox getBBox() {return bbox_;}
 
     Material getMaterial(void)
     {
@@ -42,6 +44,7 @@ class Shape
     Shape(Material& mat, double refl) : material_(mat), refl_coef_(refl) {}
     Material& material_;
     double refl_coef_;
+    BBox bbox_;
 };
 
 class Sphere : public Shape
@@ -50,6 +53,7 @@ class Sphere : public Shape
     static Sphere* parse(tinyxml2::XMLNode* node);
     Sphere(cv::Vec3d c, Material& mat, double r, double refl)
         : Shape(mat, refl), center_(c), radius_(r) {}
+      bbox_ = BBox(center_ - radVec, center_ + radVec);
 
     bool intersect(Ray ray, cv::Vec3d& intersect, double& dist)
     {
@@ -106,6 +110,12 @@ class Plane : public Shape
     : Shape(mat, refl), pt1_(pt1), dir1_(dir1), dir2_(dir2)
     {
       normal_ = normalize(dir1.cross(dir2));
+
+      cv::Vec3d tdir (1,1,1);
+      cv::Vec3d minPt = std::numeric_limits<double>::lowest() * tdir;
+      cv::Vec3d maxPt = std::numeric_limits<double>::max() * tdir;
+
+      bbox_ = BBox(minPt, maxPt);
     }
 
     bool intersect(Ray ray, cv::Vec3d& intersect, double& dist)
@@ -143,17 +153,21 @@ class Triangle : public Shape
       : Shape(mat, refl), pt1_(pt1), pt2_(pt2), pt3_(pt3)
       {
         normal_ = normalize((pt3_ - pt2_).cross(pt1_ - pt3_));
+        bbox_ = BBox(minVec(minVec(pt1_, pt2_), pt3_),
+                  maxVec(maxVec(pt1_, pt2_), pt3_));
+        center_ = (1./3.) * (pt1 + pt2 + pt3);
+
+        // The edges of the triangles
+        e1_ = (pt2_ - pt1_);
+        e2_ = (pt3_ - pt1_);
+
       }
 
 
     bool intersect(Ray ray, cv::Vec3d& intersect, double& dist)
     {
-      // The edges of the triangles
-      cv::Vec3d e1 = (pt2_ - pt1_);
-      cv::Vec3d e2 = (pt3_ - pt1_);
-
-      cv::Vec3d p = ray.dir().cross(e2);
-      double det = e1.dot(p);
+      cv::Vec3d p = ray.dir().cross(e2_);
+      double det = e1_.dot(p);
       double inv_det = 1. / det;
 
       cv::Vec3d t = ray.orig() - pt1_;
@@ -162,11 +176,12 @@ class Triangle : public Shape
       if (u < 0 || u > 1)
         return false;
 
-      cv::Vec3d q = t.cross(e1);
+      cv::Vec3d q = t.cross(e1_);
       double v = ray.dir().dot(q) * inv_det;
       if (v < 0 || u + v > 1)
         return false;
-      dist = e2.dot(q) * inv_det;
+
+      dist = e2_.dot(q) * inv_det;
       intersect = ray.orig() + dist * ray.dir();
       if (dist > 0)
         return true;
@@ -184,6 +199,9 @@ class Triangle : public Shape
     cv::Vec3d pt1_;
     cv::Vec3d pt2_;
     cv::Vec3d pt3_;
+
+    cv::Vec3d e1_;
+    cv::Vec3d e2_;
 
     // The direction of the normal is the same for the whole triangle, so, we
     // precompute it
