@@ -1,3 +1,6 @@
 [submodule "tinyxml"]
 	path = tinyxml
 	url = https://github.com/leethomason/tinyxml2.git
+[submodule "tinyobjloader"]
+	path = tinyobjloader
+	url = https://github.com/syoyo/tinyobjloader.git

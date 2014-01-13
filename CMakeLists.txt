@@ -22,9 +22,23 @@ file (
 add_definitions(-g)
 
 add_subdirectory(tinyxml)
-include_directories(tinyxml)
+include_directories(tinyxml tinyobjloader)
+
+file (
+  GLOB_RECURSE
+  SOURCE_TINY_OBJ
+  tinyobjloader/tiny_obj_loader.cc
+)
+
+file (
+  GLOB_RECURSE
+  HEADER_TINY_OBJ
+  tinyobjloader/*.h
+)
+
+add_library(tinyobjloader SHARED ${SOURCE_TINY_OBJ} ${HEADER_TINY_OBJ})
 
 add_executable (cray ${SOURCE_FILES} ${HEADER_FILES})
-target_link_libraries(cray ${OpenCV_LIBS} tinyxml2)
+target_link_libraries(cray ${OpenCV_LIBS} tinyxml2 tinyobjloader)
 
 install (TARGETS cray DESTINATION bin)
