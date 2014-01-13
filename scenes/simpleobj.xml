@@ -1,0 +1,47 @@
+<scene>
+  <camera>
+    <vec name="pos" x="10" y="-10" z="-10"/>
+    <vec name="dir" x="-1" y="1" z="1"/>
+    <vec name="up"  x="0" y="1" z="0"/>
+  </camera>
+  <shapes>
+    <obj path="/lrde/home/lrde-2014/ripault/Prog/epita/cray/scenes/cube.obj" scale="0.5">
+      <vec name="translate" x="0" y="0" z="0"/>
+      <material type="simple" ambient="0.1" diffuse="1" specular="1" brilliancy="4">
+        <color r="1" g="0" b="0"/>
+      </material>
+    </obj>
+    <obj path="/lrde/home/lrde-2014/ripault/Prog/epita/cray/scenes/cube.obj" scale="0.5">
+      <vec name="translate" x="0" y="0" z="2"/>
+      <material type="simple" ambient="0.1" diffuse="1" specular="1" brilliancy="4">
+        <color r="1" g="0" b="0"/>
+      </material>
+    </obj>
+    <obj path="/lrde/home/lrde-2014/ripault/Prog/epita/cray/scenes/cube.obj" scale="0.5">
+      <vec name="translate" x="2" y="0" z="0"/>
+      <material type="simple" ambient="0.1" diffuse="1" specular="1" brilliancy="4">
+        <color r="1" g="0" b="0"/>
+      </material>
+    </obj>
+    <obj path="/lrde/home/lrde-2014/ripault/Prog/epita/cray/scenes/cube.obj" scale="0.5">
+      <vec name="translate" x="2" y="0" z="2"/>
+      <material type="simple" ambient="0.1" diffuse="1" specular="1" brilliancy="4">
+        <color r="1" g="0" b="0"/>
+      </material>
+    </obj>
+    <plane>
+      <vec name="pos"  x="0" y="0" z="0"/>
+      <vec name="dir1" x="1" y="0"    z="0"/>
+      <vec name="dir2" x="0" y="0"    z="1"/>
+      <material type="simple" ambient="0.1" diffuse="1" specular="1" brilliancy="4">
+        <color r="1" g="1" b="1"/>
+      </material>
+    </plane>
+  </shapes>
+  <lights>
+    <light r="1" samples="0">
+      <vec name="pos" x="0" y="-7" z="-1"/>
+      <color r="1" g="1" b="1"/>
+    </light>
+  </lights>
+</scene>
