@@ -1,5 +1,7 @@
-#include "shape.hh"
+#include <tiny_obj_loader.h>
+#include <cassert>
 
+#include "obj.hh"
 
 Shape* Shape::parse(tinyxml2::XMLNode* node)
 {
@@ -9,6 +11,8 @@ Shape* Shape::parse(tinyxml2::XMLNode* node)
     return Plane::parse(node);
   else if (is_named("triangle", node))
     return Triangle::parse(node);
+  else if (is_named("obj", node))
+    return Obj::parse(node);
   else
   {
     std::cerr << "Error: unexpected shape of type " << node->ToElement()->Name() << std::endl;
@@ -20,7 +24,7 @@ Sphere* Sphere::parse(tinyxml2::XMLNode* node)
 {
   double radius = nan("");
   cv::Vec3d pos;
-  Material* mat;
+  Material* mat = nullptr;
 
   node->ToElement()->QueryDoubleAttribute("r", &radius);
   if (isnan(radius))
@@ -54,7 +58,7 @@ Plane* Plane::parse(tinyxml2::XMLNode* node)
   cv::Vec3d pos;
   cv::Vec3d dir1;
   cv::Vec3d dir2;
-  Material* mat;
+  Material* mat = nullptr;
 
   tinyxml2::XMLNode* child = node->FirstChild();
   do
@@ -85,7 +89,7 @@ Triangle* Triangle::parse(tinyxml2::XMLNode* node)
   cv::Vec3d pt1;
   cv::Vec3d pt2;
   cv::Vec3d pt3;
-  Material* mat;
+  Material* mat = nullptr;
 
   tinyxml2::XMLNode* child = node->FirstChild();
   do
