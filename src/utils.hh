@@ -4,6 +4,7 @@
 #include <cv.h>
 #include <tinyxml2.h>
 #include <iostream>
+#include <ostream>
 #include "ray.hh"
 
 // Parsing utility functions
@@ -25,4 +26,8 @@ double clamp_one(double val);
 // Normalizes a vector
 cv::Vec3d normalize(cv::Vec3d vec);
 
+cv::Vec3d minVec(cv::Vec3d a, cv::Vec3d b);
+cv::Vec3d maxVec(cv::Vec3d a, cv::Vec3d b);
+
+std::ostream& operator<<(std::ostream& out, cv::Vec3d vec);
 #endif

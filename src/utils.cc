@@ -79,3 +79,27 @@ cv::Vec3d normalize(cv::Vec3d vec)
     return vec;
   return (1.0/cv::norm(vec)) * vec;
 }
+
+cv::Vec3d minVec(cv::Vec3d a, cv::Vec3d b)
+{
+  double minx = (a[0] < b[0] ? a[0] : b[0]);
+  double miny = (a[1] < b[1] ? a[1] : b[1]);
+  double minz = (a[2] < b[2] ? a[2] : b[2]);
+
+  return cv::Vec3d(minx, miny, minz);
+}
+
+cv::Vec3d maxVec(cv::Vec3d a, cv::Vec3d b)
+{
+  double maxx = (a[0] > b[0] ? a[0] : b[0]);
+  double maxy = (a[1] > b[1] ? a[1] : b[1]);
+  double maxz = (a[2] > b[2] ? a[2] : b[2]);
+
+  return cv::Vec3d(maxx, maxy, maxz);
+}
+
+std::ostream& operator<<(std::ostream& out, cv::Vec3d vec)
+{
+  out << vec[0] << " " << vec[1] << " " << vec[2];
+  return out;
+}
