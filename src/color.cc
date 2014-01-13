@@ -82,6 +82,11 @@ Color operator* (Color rgb, double val)
   return Color(rgb.r() * val, rgb.g() * val, rgb.b() * val, rgb.max());
 }
 
+Color ponderate(Color rgb, double val)
+{
+  return Color(rgb.r() * val, rgb.g() * val, rgb.b() * val, val * rgb.max());
+}
+
 Color operator*(double val, Color rgb)
 {
   return rgb * val;
