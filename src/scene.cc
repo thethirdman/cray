@@ -1,4 +1,5 @@
 #include "scene.hh"
+#include "vector.hh"
 #include <limits>
 
 Scene* Scene::parse(char* path, int x, int y)
@@ -55,13 +56,13 @@ void Scene::setDims(int x, int y)
   y_ = y;
 }
 
-Shape* Scene::hit(Ray& ray, cv::Vec3d& best_hit, double& best_dist)
+Shape* Scene::hit(Ray& ray, Vec3d& best_hit, double& best_dist)
 {
 
   return shapes_.intersect(ray, best_hit, best_dist);
 }
 
-Color Scene::render_light(Ray &ray, cv::Vec3d intersection, Light& l, Shape& shape, int depth)
+Color Scene::render_light(Ray &ray, Vec3d intersection, Light& l, Shape& shape, int depth)
 {
   Color color = l.illumination(shape, ray, intersection, shapes_);
 
@@ -89,7 +90,7 @@ Color Scene::ray_launch(Ray& ray, int depth)
 
   Shape* shape;
   // We first check for a hit with a shape
-  cv::Vec3d intersection;
+  Vec3d intersection;
   double inter_dist;
 
   Color result;

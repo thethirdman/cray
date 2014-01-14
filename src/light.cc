@@ -1,7 +1,7 @@
 #include "light.hh"
 Light Light::parse(tinyxml2::XMLNode* node)
 {
-  cv::Vec3d pos;
+  Vec3d pos;
   Color col;
   float radius = nan("");
   int samples = 0;

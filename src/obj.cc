@@ -8,7 +8,7 @@ Obj* Obj::parse(tinyxml2::XMLNode* node)
   double scale = 1;
   node->ToElement()->QueryDoubleAttribute("scale", &scale);
   Material* mat = nullptr;
-  cv::Vec3d trans (0,0,0);
+  Vec3d trans (0,0,0);
   double rot[3];
 
   tinyxml2::XMLNode* child = node->FirstChild();
@@ -39,14 +39,7 @@ Obj* Obj::parse(tinyxml2::XMLNode* node)
   return new Obj(name, *mat, scale, trans, rot, 0.);
 }
 
-Triangle convert(tinyobj::mesh_t mesh, Material& mat, double refl)
-{
-  std::cout << "Mesh size: " << mesh.positions.size() << std::endl;
-  assert(mesh.positions.size() == 3);
-  return Triangle(mesh.positions[0], mesh.positions[1], mesh.positions[2], mat, refl);
-}
-
-cv::Vec3d project(double scale, cv::Vec3d translate, double rot[], double x, double y, double z)
+Vec3d project(double scale, Vec3d translate, double rot[], double x, double y, double z)
 {
   x = x * scale + translate[0];
   y = -y * scale + translate[1];
@@ -62,10 +55,10 @@ cv::Vec3d project(double scale, cv::Vec3d translate, double rot[], double x, dou
 
   double zrot = sin(rot[1]) * x - sin(rot[0])*cos(rot[1]) * y + cos(rot[0])*cos(rot[1])*z;
 
-  return cv::Vec3d(xrot, yrot, zrot);
+  return Vec3d(xrot, yrot, zrot);
 }
 
-Obj::Obj(const char* fname, Material& mat, double scale, cv::Vec3d translate, double rot[], double refl)
+Obj::Obj(const char* fname, Material& mat, double scale, Vec3d translate, double rot[], double refl)
   : Shape(mat, refl), name_(fname)
 {
   std::vector<tinyobj::shape_t> shapes;
@@ -82,9 +75,9 @@ Obj::Obj(const char* fname, Material& mat, double scale, cv::Vec3d translate, do
       unsigned int index2 =  shapes[s].mesh.indices[3 * idx + 1];
       unsigned int index3 =  shapes[s].mesh.indices[3 * idx + 2];
 
-      cv::Vec3d pt1 = project(scale, translate, rot, positions[index1 * 3], positions[index1 * 3 + 1], positions[index1 * 3 + 2]);
-      cv::Vec3d pt2 = project(scale, translate, rot, positions[index2 * 3], positions[index2 * 3 + 1], positions[index2 * 3 + 2]);
-      cv::Vec3d pt3 = project(scale, translate, rot, positions[index3 * 3], positions[index3 * 3 + 1], positions[index3 * 3 + 2]);
+      Vec3d pt1 = project(scale, translate, rot, positions[index1 * 3], positions[index1 * 3 + 1], positions[index1 * 3 + 2]);
+      Vec3d pt2 = project(scale, translate, rot, positions[index2 * 3], positions[index2 * 3 + 1], positions[index2 * 3 + 2]);
+      Vec3d pt3 = project(scale, translate, rot, positions[index3 * 3], positions[index3 * 3 + 1], positions[index3 * 3 + 2]);
 
       contents.push_back(new Triangle(pt1,pt2,pt3,material_, refl_coef_));
     }

@@ -2,14 +2,15 @@
 # define OBJ_HH_
 
 #include "shape.hh"
+#include "vector.hh"
 #include "kdtree.hh"
 
 class Obj: public Shape
 {
   public:
     static Obj* parse(tinyxml2::XMLNode* node);
-    Obj (const char* fname, Material& mat, double scale, cv::Vec3d translate, double rot[], double refl);
-    bool intersect(Ray ray, cv::Vec3d& intersect, double& dist)
+    Obj (const char* fname, Material& mat, double scale, Vec3d translate, double rot[], double refl);
+    bool intersect(Ray ray, Vec3d& intersect, double& dist)
     {
       return (polygons_.intersect(ray, intersect, dist) != 0);
 
@@ -20,9 +21,9 @@ class Obj: public Shape
       return bbox_;
     }
 
-    cv::Vec3d normal(Ray& ray)
+    Vec3d normal(Ray& ray)
     {
-      cv::Vec3d intersect;
+      Vec3d intersect;
       double dist;
       Shape* shape = polygons_.intersect(ray, intersect, dist);
 
@@ -30,8 +31,7 @@ class Obj: public Shape
         return shape->normal(ray);
       else
       { // FIXME: real handling
-        //std::cerr << "Tried to get a normal on a non-intersecting ray" << std::endl;
-        return cv::Vec3d(0,0,0);
+        return Vec3d(0,0,0);
       }
     }
   private:

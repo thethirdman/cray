@@ -11,12 +11,13 @@
 #include "obj.hh"
 #include "light.hh"
 #include "kdtree.hh"
+#include "vector.hh"
 
 // The size factor is used for supersampling. Supersampling is a technique used
 // in order to have simple anti-aliasing on a scene. It creates a bigger image
 // (and therefore, more precise), and then reduces it with interpolation before
 // saving it;
-#define SIZE_FACTOR 1
+#define SIZE_FACTOR 2
 
 /// The scene contains all the necessary element to render an image
 class Scene
@@ -49,10 +50,10 @@ class Scene
     // distance to the origin of the ray. s_id represents the shape that is
     // hit. If no hit, returns NULL and s_id is set to -1
     // FIXME: better return type ?
-    //bool hit(Ray& ray, int& s_id, cv::Vec3d& intersect, double& dist);
-    Shape* hit(Ray& ray, cv::Vec3d& best_hit, double& best_dist);
+    //bool hit(Ray& ray, int& s_id, Vec3d& intersect, double& dist);
+    Shape* hit(Ray& ray, Vec3d& best_hit, double& best_dist);
 
-    Color render_light(Ray &ray, cv::Vec3d intersection, Light& l, Shape& shape, int depth);
+    Color render_light(Ray &ray, Vec3d intersection, Light& l, Shape& shape, int depth);
     /// Does the complete rendering of the scene for a given ray.
     // The depth parameter is used to determine the maximum reflection depth
     // (reflection computation is just a recursion with a new ray).

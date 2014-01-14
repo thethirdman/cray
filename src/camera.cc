@@ -3,9 +3,9 @@
 
 Camera* Camera::parse(tinyxml2::XMLNode* node, int x, int y)
 {
-  cv::Vec3d pos;
-  cv::Vec3d dir;
-  cv::Vec3d up;
+  Vec3d pos;
+  Vec3d dir;
+  Vec3d up;
 
   bool setPos = false;
   bool setDir = false;

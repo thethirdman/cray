@@ -7,6 +7,7 @@
 
 #include "shape.hh"
 #include "kdtree.hh"
+#include "vector.hh"
 #include <tinyxml2.h>
 #include <cmath>
 
@@ -14,8 +15,8 @@ class Light
 {
   public:
     static Light parse(tinyxml2::XMLNode* node);
-    Light(cv::Vec3d orig, Color color) : orig_(orig), radius_(0), samples_(0), color_(color) {}
-    Light(cv::Vec3d orig, float radius, int samples, Color color)
+    Light(Vec3d orig, Color color) : orig_(orig), radius_(0), samples_(0), color_(color) {}
+    Light(Vec3d orig, float radius, int samples, Color color)
       : orig_(orig), radius_(radius), color_(color)
     {
       // Because of the smoothing, we want have the square root
@@ -27,45 +28,46 @@ class Light
     }
     Light() {} // FIXME
 
-    cv::Vec3d orig(void) {return orig_;}
+    Vec3d orig(void) {return orig_;}
     Color getColor(void) {return color_;}
 
-    Color illumination(Shape& shape, Ray& ray, cv::Vec3d intersection, KDTree& shapes)
+    Color illumination(Shape& shape, Ray& ray, Vec3d intersection, KDTree& shapes)
     {
-      cv::Vec3d cur_orig = orig_;
+      Vec3d cur_orig = orig_;
       Color total_color (0,0,0,0);
 
       int max = samples_;
       for (int i = 0; i < max * max + 1; i++)
       {
-        cv::Vec3d dir_light = normalize(intersection - cur_orig);
-        double light_dist = cv::norm(cur_orig - intersection);
+        Vec3d dir_light = normalize(intersection - cur_orig);
+        double light_dist = (cur_orig - intersection).norm();
         double shadowed = 0.0;
         Ray light_ray (cur_orig , dir_light);
-        const double shift = std::numeric_limits<double>::epsilon() * 2048.0;
+        const double shift = std::numeric_limits<double>::epsilon() * 128.;
         Ray shadow_ray (intersection + shift * dir_light, -dir_light);
-        Ray shifted_ray (intersection + shift * -dir_light, -dir_light);
 
         // If this ray hits a shape, it shadowed.
-        cv::Vec3d hit;
+        Vec3d hit;
         double dist;
 
-        if (shapes.intersect(shifted_ray, hit, dist))
+        if (shapes.intersect(light_ray, hit, dist))
         {
-          if (dist < light_dist)
+          if (dist + shift < light_dist)
             shadowed = 1;
         }
+        shadowed = 0;
 
         Material mat = shape.getMaterial();
         double diffcoef = mat.get_diffuse_coef() * clamp_zero(shape.normal(shadow_ray).dot(-light_ray.dir()) - shadowed);
 
-        Ray refl_light = shape.reflect(light_ray);
+        Ray refl_light = shape.reflect(shadow_ray.op_dir());
         double phong = (diffcoef <= 0 ? 0
-            : mat.get_specular_coef() * clamp_zero(refl_light.dir().dot(normalize(ray.dir() - intersection))));
+            : mat.get_specular_coef() * clamp_zero(refl_light.dir().dot(normalize(ray.orig() - intersection))));
 
         Color acolor = mat.get_ambient_coef() * mat.color_at(0,0);
         Color dcolor = diffcoef * mat.get_diffuse_coef() * mat.color_at(0,0);
         Color scolor = pow(phong, mat.get_brilliancy()) * Color(1,1,1);
+
         total_color  = total_color + satSum(satSum(acolor, dcolor), scolor);
 
         if (samples_ != 0)
@@ -81,7 +83,7 @@ class Light
     int samples(void) {return samples_;}
 
   private:
-    cv::Vec3d orig_;
+    Vec3d orig_;
     float radius_;
     int samples_;
     Color color_;

@@ -1,6 +1,7 @@
 #include <tiny_obj_loader.h>
 #include <cassert>
 
+// #include "shape.hh"
 #include "obj.hh"
 
 Shape* Shape::parse(tinyxml2::XMLNode* node)
@@ -23,7 +24,7 @@ Shape* Shape::parse(tinyxml2::XMLNode* node)
 Sphere* Sphere::parse(tinyxml2::XMLNode* node)
 {
   double radius = nan("");
-  cv::Vec3d pos;
+  Vec3d pos;
   Material* mat = nullptr;
 
   node->ToElement()->QueryDoubleAttribute("r", &radius);
@@ -50,14 +51,14 @@ Sphere* Sphere::parse(tinyxml2::XMLNode* node)
   while ((child = child->NextSibling()));
 
   // FIXME: refl value
-  return new Sphere(pos, *mat, radius, 0.3);
+  return new Sphere(pos, *mat, radius, 0.1);
 }
 
 Plane* Plane::parse(tinyxml2::XMLNode* node)
 {
-  cv::Vec3d pos;
-  cv::Vec3d dir1;
-  cv::Vec3d dir2;
+  Vec3d pos;
+  Vec3d dir1;
+  Vec3d dir2;
   Material* mat = nullptr;
 
   tinyxml2::XMLNode* child = node->FirstChild();
@@ -86,9 +87,9 @@ Plane* Plane::parse(tinyxml2::XMLNode* node)
 
 Triangle* Triangle::parse(tinyxml2::XMLNode* node)
 {
-  cv::Vec3d pt1;
-  cv::Vec3d pt2;
-  cv::Vec3d pt3;
+  Vec3d pt1;
+  Vec3d pt2;
+  Vec3d pt3;
   Material* mat = nullptr;
 
   tinyxml2::XMLNode* child = node->FirstChild();
@@ -97,7 +98,7 @@ Triangle* Triangle::parse(tinyxml2::XMLNode* node)
     tinyxml2::XMLElement* elt = child->ToElement();
     if (is_named("vec", child))
     {
-      cv::Vec3d vec = parseVec(elt);
+      Vec3d vec = parseVec(elt);
       if (elt->Attribute("name","pt1"))
         pt1 = vec;
       else if (elt->Attribute("name","pt2"))

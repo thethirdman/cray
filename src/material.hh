@@ -4,6 +4,7 @@
 # include <functional>
 # include <array>
 # include "color.hh"
+#include "vector.hh"
 
 /**
  * Type for the functors that return a color according to a coordinate of the

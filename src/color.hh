@@ -3,6 +3,7 @@
 
 #include <cv.h>
 #include <tinyxml2.h>
+#include "vector.hh"
 
 // This files describe how a color is represented in our raytracer.
 // For simplicity purposes, color values are represented as a double between

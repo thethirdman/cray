@@ -2,6 +2,7 @@
 # define BBOX_HH_
 
 #include <cv.h>
+#include "vector.hh"
 #include "ray.hh"
 #include "utils.hh"
 
@@ -10,12 +11,12 @@ class BBox
   public:
     BBox() {};
 
-    BBox(cv::Vec3d min, cv::Vec3d max) : minpt(min), maxpt(max) { }
+    BBox(Vec3d min, Vec3d max) : minpt(min), maxpt(max) { }
 
     BBox merge(BBox other)
     {
-      cv::Vec3d minp = minVec(minVec(minpt, other.minpt), minVec(maxpt, other.maxpt));
-      cv::Vec3d maxp = maxVec(maxVec(minpt, other.minpt), maxVec(maxpt, other.maxpt));
+      Vec3d minp = minVec(minVec(minpt, other.minpt), minVec(maxpt, other.maxpt));
+      Vec3d maxp = maxVec(maxVec(minpt, other.minpt), maxVec(maxpt, other.maxpt));
 
       minpt = minp;
       maxpt = maxp;
@@ -55,8 +56,8 @@ class BBox
       return true;
     }
 
-    cv::Vec3d minpt;
-    cv::Vec3d maxpt;
+    Vec3d minpt;
+    Vec3d maxpt;
 };
 
 #endif // BBOX

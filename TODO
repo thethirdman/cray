@@ -1,12 +1,11 @@
 Mandatory:
-  - Revert material
-  - Lumière avec volume
-  - Formes complexe (obj reader ?)
-  - Lumière ambiante - on a une base, faut-il faire plus ?
   - Transparence
 
   DONE:
+    - Lumière ambiante
+    - Formes complexe
     - Textures (couleur unies)
+    - Lumière avec volume
 
 Bonus:
   - Textures ++ (sur les formes simples au moins)
@@ -14,6 +13,5 @@ Bonus:
   - Parallelisme
 
 Nettoyage:
-  - Refaire les vecteurs
   - Refaire l'AA (pour l'instant, on utilise openCV)
   - Virer l'utilisation de cv::mat

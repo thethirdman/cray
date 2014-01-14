@@ -4,6 +4,7 @@
 #include <cv.h>
 #include "shape.hh"
 #include "bbox.hh"
+#include "vector.hh"
 #include <assert.h>
 
 class KDTree
@@ -30,7 +31,7 @@ class KDTree
       int dim = depth % 3;
 
       unsigned int shape_i = -1;
-      splitpos_ = cv::Vec3d (0.,0.,0.);
+      splitpos_ = Vec3d (0.,0.,0.);
       splitpos_[dim] = findBestSplit(shapes, shape_i, dim);
 
       std::vector<Shape*> lshapes;
@@ -77,21 +78,21 @@ class KDTree
       return centers[shape_i];
     }
 
-    bool interLeft(Shape* s, cv::Vec3d split, int dim)
+    bool interLeft(Shape* s, Vec3d split, int dim)
     {
       return s->center()[dim] < split[dim];
     }
-    bool interRight(Shape* s, cv::Vec3d split, int dim)
+    bool interRight(Shape* s, Vec3d split, int dim)
     {
       return s->center()[dim] >= split[dim];
     }
 
-    Shape* intersect(Ray& r, cv::Vec3d& intersect, double& dist)
+    Shape* intersect(Ray& r, Vec3d& intersect, double& dist)
     {
       if (bbox_.mustShoot(r))
       {
         double best_dist;
-        cv::Vec3d best_inter;
+        Vec3d best_inter;
         bool hit = false;
         Shape* ret = nullptr;
 
@@ -102,7 +103,7 @@ class KDTree
             ret = shape_;
         }
 
-        cv::Vec3d cur_inter;
+        Vec3d cur_inter;
         double cur_dist = -1;
 
         if (left_)
@@ -145,7 +146,7 @@ class KDTree
     }
 
   private:
-    cv::Vec3d splitpos_;
+    Vec3d splitpos_;
     BBox bbox_;
     Shape* shape_;
     KDTree* left_;

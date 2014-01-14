@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cv.h>
+#include "vector.hh"
 #include "ray.hh"
 #include "utils.hh"
 #include <math.h>
@@ -16,7 +17,7 @@
 class Camera
 {
   public:
-    Camera(cv::Vec3i pos, cv::Vec3d dir, cv::Vec3d up, int x, int y)
+    Camera(Vec3d pos, Vec3d dir, Vec3d up, int x, int y)
       : x_(x), y_(y), pos_(pos), dir_(dir), up_(up)
     {
       double fov = M_PI_4;
@@ -32,12 +33,12 @@ class Camera
 
       // Those two vector define the tangent plane to the camera direction
       // that we use to cast the rays
-      cv::Vec3d cam_right = normalize(up_.cross(dir_));
-      cv::Vec3d cam_up    = normalize(dir_.cross(cam_right));
+      Vec3d cam_right = normalize(up_.cross(dir_));
+      Vec3d cam_up    = normalize(dir_.cross(cam_right));
       double xd = static_cast<double>(x_);
       double yd = static_cast<double>(y_);
 
-      cv::Vec3d center = pos_ + dir_;
+      Vec3d center = pos_ + dir_;
 
       for (int j = 0; j < y_; j++)
         for (int i = 0; i < x_; i++)
@@ -48,8 +49,8 @@ class Camera
           double normal_j = (static_cast<double>(j)/yd - 0.5) * fovy_;
 
           // it is then projected on the tangent plane
-          cv::Vec3d pt = normal_i * cam_right + normal_j * cam_up + center;
-          cv::Vec3d pt_dir = normalize(pt - pos_);
+          Vec3d pt = normal_i * cam_right + normal_j * cam_up + center;
+          Vec3d pt_dir = normalize(pt - pos_);
 
           rayMat->at(j * x_ + i) = Ray(pt, pt_dir);
         }
@@ -64,11 +65,11 @@ class Camera
     double fovy_;
 
     // The position of the camera in the scene
-    cv::Vec3d pos_;
+    Vec3d pos_;
     // Its viewing direction
-    cv::Vec3d dir_;
+    Vec3d dir_;
     // Its vertical orientation
-    cv::Vec3d up_;
+    Vec3d up_;
 };
 
 #undef _USE_MATH_DEFINES

@@ -24,7 +24,7 @@ bool is_named(std::string name, tinyxml2::XMLNode* node)
   return (name.compare(node->ToElement()->Name()) == 0);
 }
 
-cv::Vec3d parseVec(tinyxml2::XMLElement* elt)
+Vec3d parseVec(tinyxml2::XMLElement* elt)
 {
   double x = nan("");
   double y = nan("");
@@ -39,10 +39,10 @@ cv::Vec3d parseVec(tinyxml2::XMLElement* elt)
     std::cerr << "Error: missing attribute in vec, either x, y or z" << std::endl;
     exit(1);
   }
-  return cv::Vec3d(x,y,z);
+  return Vec3d(x,y,z);
 }
 
-cv::Vec3d randSphere(cv::Vec3d center, double radius, double start1, double start2, double len)
+Vec3d randSphere(Vec3d center, double radius, double start1, double start2, double len)
 {
   double u = normal_rand() * len + start1;
   double v = normal_rand() * len + start2;
@@ -51,7 +51,7 @@ cv::Vec3d randSphere(cv::Vec3d center, double radius, double start1, double star
   double phi = acos(2 * v - 1);
 
   return center
-    + cv::Vec3d (radius * sin(phi) * cos(theta),
+    + Vec3d (radius * sin(phi) * cos(theta),
                 radius *  cos(phi) * sin(theta),
                 radius * cos(phi));
 }
@@ -73,32 +73,32 @@ double clamp_one(double val)
   return (val > 1 ? 1 : val);
 }
 
-cv::Vec3d normalize(cv::Vec3d vec)
+Vec3d normalize(Vec3d vec)
 {
   if (vec[0] == 0 && vec[1] == 0 && vec[2] == 0)
     return vec;
-  return (1.0/cv::norm(vec)) * vec;
+  return (1.0/vec.norm()) * vec;
 }
 
-cv::Vec3d minVec(cv::Vec3d a, cv::Vec3d b)
+Vec3d minVec(Vec3d a, Vec3d b)
 {
   double minx = (a[0] < b[0] ? a[0] : b[0]);
   double miny = (a[1] < b[1] ? a[1] : b[1]);
   double minz = (a[2] < b[2] ? a[2] : b[2]);
 
-  return cv::Vec3d(minx, miny, minz);
+  return Vec3d(minx, miny, minz);
 }
 
-cv::Vec3d maxVec(cv::Vec3d a, cv::Vec3d b)
+Vec3d maxVec(Vec3d a, Vec3d b)
 {
   double maxx = (a[0] > b[0] ? a[0] : b[0]);
   double maxy = (a[1] > b[1] ? a[1] : b[1]);
   double maxz = (a[2] > b[2] ? a[2] : b[2]);
 
-  return cv::Vec3d(maxx, maxy, maxz);
+  return Vec3d(maxx, maxy, maxz);
 }
 
-std::ostream& operator<<(std::ostream& out, cv::Vec3d vec)
+std::ostream& operator<<(std::ostream& out, Vec3d vec)
 {
   out << vec[0] << " " << vec[1] << " " << vec[2];
   return out;
