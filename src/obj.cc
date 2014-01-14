@@ -9,6 +9,7 @@ Obj* Obj::parse(tinyxml2::XMLNode* node)
   node->ToElement()->QueryDoubleAttribute("scale", &scale);
   Material* mat = nullptr;
   cv::Vec3d trans (0,0,0);
+  double rot[3];
 
   tinyxml2::XMLNode* child = node->FirstChild();
   do
@@ -18,6 +19,12 @@ Obj* Obj::parse(tinyxml2::XMLNode* node)
       mat = Material::parse(elt_child);
     else if (is_named("vec", elt_child) && elt_child->Attribute("name","translate"))
       trans = parseVec(elt_child);
+    else if (is_named("rotate", elt_child))
+    {
+      elt_child->QueryDoubleAttribute("xrot", &rot[0]);
+      elt_child->QueryDoubleAttribute("yrot", &rot[1]);
+      elt_child->QueryDoubleAttribute("zrot", &rot[2]);
+    }
     else
     {
       std::cerr << "Error: invalid node " << child->ToElement()->Name() << std::endl;
@@ -26,7 +33,10 @@ Obj* Obj::parse(tinyxml2::XMLNode* node)
 
   } while ((child = child->NextSibling()));
 
-  return new Obj(name, *mat, scale, trans, 0.);
+  // Deg to radians
+  for (int i = 0; i < 3; i++)
+    rot[i] = M_PI * rot[i]/180;
+  return new Obj(name, *mat, scale, trans, rot, 0.);
 }
 
 Triangle convert(tinyobj::mesh_t mesh, Material& mat, double refl)
@@ -36,13 +46,26 @@ Triangle convert(tinyobj::mesh_t mesh, Material& mat, double refl)
   return Triangle(mesh.positions[0], mesh.positions[1], mesh.positions[2], mat, refl);
 }
 
-cv::Vec3d project(double scale, cv::Vec3d translate, double x, double y, double z)
+cv::Vec3d project(double scale, cv::Vec3d translate, double rot[], double x, double y, double z)
 {
-  return cv::Vec3d(x * scale + translate[0], -y * scale + translate[1], z * scale + translate[2]);
-  //return cv::Vec3d(x * scale + translate[0], - y * scale + translate[1], z * scale + translate[2]);
+  x = x * scale + translate[0];
+  y = -y * scale + translate[1];
+  z = z * scale + translate[2];
+
+  double xrot = cos(rot[1]) * cos(rot[2]) * x
+              + (cos(rot[0])*sin(rot[2]) + sin(rot[0])*sin(rot[1])*cos(rot[2])) * y
+              + (sin(rot[0])*sin(rot[2]) - cos(rot[0])*sin(rot[1])*cos(rot[2])) * z;
+
+  double yrot = -cos(rot[1]) * sin(rot[2]) * x
+              + (cos(rot[0])*cos(rot[2]) - sin(rot[0])*sin(rot[1])*sin(rot[2])) * y
+              + (sin(rot[0])*cos(rot[2]) + cos(rot[0])*sin(rot[1])*sin(rot[2])) * z;
+
+  double zrot = sin(rot[1]) * x - sin(rot[0])*cos(rot[1]) * y + cos(rot[0])*cos(rot[1])*z;
+
+  return cv::Vec3d(xrot, yrot, zrot);
 }
 
-Obj::Obj(const char* fname, Material& mat, double scale, cv::Vec3d translate, double refl)
+Obj::Obj(const char* fname, Material& mat, double scale, cv::Vec3d translate, double rot[], double refl)
   : Shape(mat, refl), name_(fname)
 {
   std::vector<tinyobj::shape_t> shapes;
@@ -59,9 +82,9 @@ Obj::Obj(const char* fname, Material& mat, double scale, cv::Vec3d translate, do
       unsigned int index2 =  shapes[s].mesh.indices[3 * idx + 1];
       unsigned int index3 =  shapes[s].mesh.indices[3 * idx + 2];
 
-      cv::Vec3d pt1 = project(scale, translate, positions[index1 * 3], positions[index1 * 3 + 1], positions[index1 * 3 + 2]);
-      cv::Vec3d pt2 = project(scale, translate, positions[index2 * 3], positions[index2 * 3 + 1], positions[index2 * 3 + 2]);
-      cv::Vec3d pt3 = project(scale, translate, positions[index3 * 3], positions[index3 * 3 + 1], positions[index3 * 3 + 2]);
+      cv::Vec3d pt1 = project(scale, translate, rot, positions[index1 * 3], positions[index1 * 3 + 1], positions[index1 * 3 + 2]);
+      cv::Vec3d pt2 = project(scale, translate, rot, positions[index2 * 3], positions[index2 * 3 + 1], positions[index2 * 3 + 2]);
+      cv::Vec3d pt3 = project(scale, translate, rot, positions[index3 * 3], positions[index3 * 3 + 1], positions[index3 * 3 + 2]);
 
       contents.push_back(new Triangle(pt1,pt2,pt3,material_, refl_coef_));
     }
