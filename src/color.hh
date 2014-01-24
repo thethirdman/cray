@@ -17,9 +17,18 @@ class Color
 {
   public:
     static Color parse(tinyxml2::XMLElement* node);
-    Color (double r, double g, double b) : r_(r), g_(g), b_(b), max_val_(1) { }
-    Color (double r, double g, double b, double max_val) : r_(r), g_(g), b_(b), max_val_(max_val) { }
-    Color () : r_(0), g_(0), b_(0), max_val_(0) {} // FIXME: remove ?
+
+    explicit Color()
+        : r_(0), g_(0), b_(0), max_val_(0)
+    {}
+
+    Color (double r, double g, double b)
+        : r_(r), g_(g), b_(b), max_val_(1)
+    {}
+
+    Color (double r, double g, double b, double max_val)
+        : r_(r), g_(g), b_(b), max_val_(max_val)
+    {}
 
     double r() {return r_;}
     double g() {return g_;}

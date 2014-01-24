@@ -15,7 +15,9 @@ class Light
 {
   public:
     static Light parse(tinyxml2::XMLNode* node);
+
     Light(Vec3d orig, Color color) : orig_(orig), radius_(0), samples_(0), color_(color) {}
+
     Light(Vec3d orig, float radius, int samples, Color color)
       : orig_(orig), radius_(radius), color_(color)
     {
@@ -26,9 +28,11 @@ class Light
       else
         samples_ = 0;
     }
+
     Light() {} // FIXME
 
     Vec3d orig(void) {return orig_;}
+
     Color getColor(void) {return color_;}
 
     Color illumination(Shape& shape, Ray& ray, Vec3d intersection, KDTree& shapes)
@@ -80,6 +84,7 @@ class Light
       }
       return total_color * color_;
     }
+
     int samples(void) {return samples_;}
 
   private:

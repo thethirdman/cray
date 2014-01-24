@@ -75,9 +75,18 @@ Obj::Obj(const char* fname, Material& mat, double scale, Vec3d translate, double
       unsigned int index2 =  shapes[s].mesh.indices[3 * idx + 1];
       unsigned int index3 =  shapes[s].mesh.indices[3 * idx + 2];
 
-      Vec3d pt1 = project(scale, translate, rot, positions[index1 * 3], positions[index1 * 3 + 1], positions[index1 * 3 + 2]);
-      Vec3d pt2 = project(scale, translate, rot, positions[index2 * 3], positions[index2 * 3 + 1], positions[index2 * 3 + 2]);
-      Vec3d pt3 = project(scale, translate, rot, positions[index3 * 3], positions[index3 * 3 + 1], positions[index3 * 3 + 2]);
+      Vec3d pt1 = project(scale, translate, rot,
+                          positions[index1 * 3],
+                          positions[index1 * 3 + 1],
+                          positions[index1 * 3 + 2]);
+      Vec3d pt2 = project(scale, translate, rot,
+                          positions[index2 * 3],
+                          positions[index2 * 3 + 1],
+                          positions[index2 * 3 + 2]);
+      Vec3d pt3 = project(scale, translate, rot,
+                          positions[index3 * 3],
+                          positions[index3 * 3 + 1],
+                          positions[index3 * 3 + 2]);
 
       contents.push_back(new Triangle(pt1,pt2,pt3,material_, refl_coef_));
     }

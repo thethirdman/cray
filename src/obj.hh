@@ -39,6 +39,7 @@ class Obj: public Shape
         return Vec3d(0,0,0);
       }
     }
+
   private:
     const char* name_;
     KDTree polygons_;

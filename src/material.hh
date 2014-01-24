@@ -4,7 +4,7 @@
 # include <functional>
 # include <array>
 # include "color.hh"
-#include "vector.hh"
+# include "vector.hh"
 
 /**
  * Type for the functors that return a color according to a coordinate of the
@@ -27,6 +27,7 @@ class Material
 {
 public:
     Material(MaterialFunctor, const PhongBundle&);
+
     static Material* parse(tinyxml2::XMLNode* node);
 
     virtual ~Material();
@@ -35,13 +36,13 @@ public:
     inline float get_diffuse_coef() const;
     inline float get_specular_coef() const;
     inline float get_brilliancy() const;
-    PhongBundle get_phongbundle() const;
+    PhongBundle  get_phongbundle() const;
 
     inline void set_ambient_coef(float);
     inline void set_diffuse_coef(float);
     inline void set_specular_coef(float);
     inline void set_brilliancy(float);
-    void set_phongbundle(const PhongBundle&);
+    void        set_phongbundle(const PhongBundle&);
 
     const MaterialFunctor& get_functor() const;
 

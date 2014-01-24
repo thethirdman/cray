@@ -82,6 +82,7 @@ class KDTree
     {
       return s->center()[dim] < split[dim];
     }
+
     bool interRight(Shape* s, Vec3d split, int dim)
     {
       return s->center()[dim] >= split[dim];

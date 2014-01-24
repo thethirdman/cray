@@ -156,6 +156,7 @@ class Plane : public Shape
 {
   public:
     static Plane* parse(tinyxml2::XMLNode* node);
+
     Plane(Vec3d pt1, Vec3d dir1, Vec3d dir2, Material& mat, double refl)
     : Shape(mat, refl), pt1_(pt1), dir1_(dir1), dir2_(dir2)
     {
@@ -203,6 +204,7 @@ class Triangle : public Shape
 {
   public:
     static Triangle* parse(tinyxml2::XMLNode* node);
+
     Triangle(Vec3d pt1, Vec3d pt2, Vec3d pt3, Material& mat, double refl)
       : Shape(mat, refl), pt1_(pt1), pt2_(pt2), pt3_(pt3)
       {
@@ -214,9 +216,7 @@ class Triangle : public Shape
         // The edges of the triangles
         e1_ = (pt2_ - pt1_);
         e2_ = (pt3_ - pt1_);
-
       }
-
 
     bool intersect(Ray ray, Vec3d& intersect, double& dist)
     {

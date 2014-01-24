@@ -97,7 +97,8 @@ Plane* Plane::parse(tinyxml2::XMLNode* node)
       dir2 = parseVec(elt);
     else
     {
-      std::cerr << "Error: invalid node " << child->ToElement()->Name() << std::endl;
+      std::cerr << "Error: invalid node "
+          << child->ToElement()->Name() << std::endl;
       exit(1);
     }
   }
@@ -146,7 +147,8 @@ Triangle* Triangle::parse(tinyxml2::XMLNode* node)
         pt3 = vec;
       else
       {
-        std::cerr << "Error: invalid name for vec " << elt->Attribute("name") << std::endl;
+        std::cerr << "Error: invalid name for vec "
+            << elt->Attribute("name") << std::endl;
       }
     }
     else if (is_named("material", child))
