@@ -9,17 +9,22 @@ class Obj: public Shape
 {
   public:
     static Obj* parse(tinyxml2::XMLNode* node);
-    Obj (const char* fname, Material& mat, double scale, Vec3d translate, double rot[], double refl);
+
+    Obj (const char* fname,
+         Material& mat,
+         double scale,
+         Vec3d translate,
+         double rot[],
+         double refl);
+
     bool intersect(Ray ray, Vec3d& intersect, double& dist)
     {
       return (polygons_.intersect(ray, intersect, dist) != 0);
-
     }
 
-    BBox getBBox()
-    {
-      return bbox_;
-    }
+    bool computeColorFromTexture(const Vec3d& where, Color& out) const override;
+
+    BBox getBBox() { return bbox_; }
 
     Vec3d normal(Ray& ray)
     {

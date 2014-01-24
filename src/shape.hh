@@ -1,30 +1,39 @@
 #ifndef SHAPE_HH_
 # define SHAPE_HH_
 
+#include <unordered_map>
 #include "ray.hh"
 #include "utils.hh"
 #include "color.hh"
 #include "material.hh"
 #include "bbox.hh"
+#include "vector.hh"
 
 // Abstract class shape
 class Shape
 {
   public:
     static Shape* parse(tinyxml2::XMLNode* node);
+
+    ~Shape() { delete lazy_texturing_first_point_; }
+
     // Returns the normal to a shape at the point of intersection, or a null
     // pointer otherwise
     virtual bool intersect(Ray ray, Vec3d& intersect, double& dist) = 0;
 
     // The normal vector to a shape at the intersection point pt
     virtual Vec3d normal(Ray& ray) = 0;
+
     BBox getBBox() {return bbox_;}
+
+    Color getColorAt(const Vec3d& surface_point) const;
 
     Material getMaterial(void)
     {
       return material_;
     }
-    double refl(void) { return refl_coef_;}
+
+    double refl(void) {return refl_coef_;}
 
     Vec3d center(void) {return center_;}
 
@@ -42,18 +51,51 @@ class Shape
 
       return Ray (ray.orig() + normal_dir * shift, normalize(refl_dir));
     }
+
   protected:
-    Shape(Material& mat, double refl) : material_(mat), refl_coef_(refl) {}
+    Shape(Material& mat, double refl)
+        : material_(mat)
+        , refl_coef_(refl)
+        , lazy_texturing_first_point_(nullptr)
+    {}
+
+    /* Given a point (where), compute the shape's color at that point
+     * according to the texture described in material_. If the point is
+     * located on the Shape's surface, this method returns true and set its
+     * out argument to the appropriate color; otherwise, false is returned and
+     * out is not changed.
+     * This method does not update computed_color_points_: this is
+     * getColorAt's job.
+     */
+    virtual bool computeColorFromTexture(const Vec3d& where, Color& out) const = 0;
+
     Material& material_;
     double refl_coef_;
     Vec3d center_;
     BBox bbox_;
+
+    /* First point of the shape for which a color has been computed (from a
+     * texture). The first point is attributed the origin (0,0) of the
+     * attached texture (material_). According to the relevant shape
+     * specialization (Sphere, Plane, etc.), color of further points is
+     * computed relatively to this first point.
+     * If the first point has not been computed, this attribute is nullptr.
+     */
+    mutable Vec3d* lazy_texturing_first_point_;
+
+    /* This map holds the color values for points that already have been
+     * required. Since the texture does not change between successive rays,
+     * there is no use of re-compute a point's color value according to the
+     * texture of the Material attached to the Shape, so we cache that color.
+     */
+    mutable std::unordered_map<Vec3d,Color> computed_color_points_;
 };
 
 class Sphere : public Shape
 {
   public:
     static Sphere* parse(tinyxml2::XMLNode* node);
+
     Sphere(Vec3d c, Material& mat, double r, double refl)
         : Shape(mat, refl), radius_(r)
     {
@@ -87,9 +129,9 @@ class Sphere : public Shape
         else if (t2 > 0)
           mint = t2;
         else
-          return NULL;
+          return false;
 
-        // FIXME: for now, only one of the two solutiosn is returned
+        // FIXME: for now, only one of the two solutions is returned
         // it is the smallest distance. Not sure if this is a good idea
         intersect = ray.orig() + mint * ray.dir();
         dist = mint;
@@ -105,6 +147,8 @@ class Sphere : public Shape
     }
 
   private:
+    bool computeColorFromTexture(const Vec3d& where, Color& out) const override;
+
     double radius_;
 };
 
@@ -140,12 +184,15 @@ class Plane : public Shape
       else
         return false;
     }
+
     Vec3d normal(Ray& ray)
     {
       return (normal_.dot(ray.dir()) < 0 ? -normal_ : normal_);
     }
 
   protected:
+    bool computeColorFromTexture(const Vec3d& where, Color& out) const override;
+
     Vec3d pt1_;
     Vec3d dir1_;
     Vec3d dir2_;
@@ -201,7 +248,11 @@ class Triangle : public Shape
       return (normal_.dot(ray.dir()) < 0 ? -normal_ : normal_);
     }
 
+    bool contains(const Vec3d& point) const;
+
   private:
+    bool computeColorFromTexture(const Vec3d& where, Color& out) const override;
+
     // A triangle is defined by 3 points in the space
     Vec3d pt1_;
     Vec3d pt2_;

@@ -85,3 +85,9 @@ Obj::Obj(const char* fname, Material& mat, double scale, Vec3d translate, double
   polygons_.buildTree(contents);
   bbox_ = polygons_.getBBox();
 }
+
+bool Obj::computeColorFromTexture(const Vec3d& where, Color& out) const
+{
+    // FIXME
+    return true;
+}
