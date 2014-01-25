@@ -22,6 +22,8 @@ class Obj: public Shape
       return (polygons_.intersect(ray, intersect, dist) != 0);
     }
 
+    bool containsPoint(const Vec3d& pt) const;
+
     bool computeColorFromTexture(const Vec3d& where, Color& out) const override;
 
     BBox getBBox() { return bbox_; }

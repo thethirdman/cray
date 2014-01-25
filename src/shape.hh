@@ -24,18 +24,34 @@ class Shape
     // The normal vector to a shape at the intersection point pt
     virtual Vec3d normal(Ray& ray) = 0;
 
-    BBox getBBox() {return bbox_;}
+    BBox getBBox() const {return bbox_;}
 
+    /* Returns the Color at this Shape's surface_point.
+     * Be sure that surface_point really is contained by this Shape!
+     */
     Color getColorAt(const Vec3d& surface_point) const;
 
-    Material getMaterial(void)
+    /* Given a point (where), compute the shape's color at that point
+     * according to the texture described in material_. If the point is
+     * located on the Shape's surface, this method returns true and set its
+     * out argument to the appropriate color; otherwise, false is returned and
+     * out is not changed.
+     * This method does not update computed_color_points_: this is
+     * getColorAt's job.
+     */
+    virtual bool computeColorFromTexture(const Vec3d& where, Color& out) const = 0;
+
+    /* Returns true iff pt is part of this shape's surface. */
+    virtual bool containsPoint(const Vec3d& pt) const = 0;
+
+    const Material& getMaterial() const
     {
       return material_;
     }
 
-    double refl(void) {return refl_coef_;}
+    double refl(void) const {return refl_coef_;}
 
-    Vec3d center(void) {return center_;}
+    Vec3d center(void) const {return center_;}
 
     Ray reflect(Ray ray)
     {
@@ -59,17 +75,7 @@ class Shape
         , lazy_texturing_first_point_(nullptr)
     {}
 
-    /* Given a point (where), compute the shape's color at that point
-     * according to the texture described in material_. If the point is
-     * located on the Shape's surface, this method returns true and set its
-     * out argument to the appropriate color; otherwise, false is returned and
-     * out is not changed.
-     * This method does not update computed_color_points_: this is
-     * getColorAt's job.
-     */
-    virtual bool computeColorFromTexture(const Vec3d& where, Color& out) const = 0;
-
-    Material& material_;
+    Material material_;
     double refl_coef_;
     Vec3d center_;
     BBox bbox_;
@@ -146,6 +152,8 @@ class Sphere : public Shape
       return normalize(ray.orig() - center_);
     }
 
+    bool containsPoint(const Vec3d& point) const override;
+
   private:
     bool computeColorFromTexture(const Vec3d& where, Color& out) const override;
 
@@ -190,6 +198,8 @@ class Plane : public Shape
     {
       return (normal_.dot(ray.dir()) < 0 ? -normal_ : normal_);
     }
+
+    bool containsPoint(const Vec3d& point) const override;
 
   protected:
     bool computeColorFromTexture(const Vec3d& where, Color& out) const override;
@@ -248,7 +258,7 @@ class Triangle : public Shape
       return (normal_.dot(ray.dir()) < 0 ? -normal_ : normal_);
     }
 
-    bool contains(const Vec3d& point) const;
+    bool containsPoint(const Vec3d& point) const override;
 
   private:
     bool computeColorFromTexture(const Vec3d& where, Color& out) const override;

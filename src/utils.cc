@@ -1,3 +1,5 @@
+#include <cmath>
+#include <limits>
 #include "utils.hh"
 #include <boost/math/constants/constants.hpp>
 
@@ -102,4 +104,9 @@ std::ostream& operator<<(std::ostream& out, Vec3d vec)
 {
   out << vec[0] << " " << vec[1] << " " << vec[2];
   return out;
+}
+
+bool fequals(const double a, const double b) noexcept
+{
+    return std::fabs(a - b) < std::numeric_limits<double>::epsilon();
 }

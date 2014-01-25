@@ -28,16 +28,10 @@ class Vector
       return coord_[index];
     }
 
-    type norm()
-    {
-      type ret = 0;
+    inline type norm() const;
 
-      for (unsigned int i = 0; i < dim; i++)
-        ret += coord_[i] * coord_[i];
+    inline type dot(const Vector<type,dim>& a) const;
 
-      return sqrt(ret);
-    }
-    type dot(Vector<type,dim> a);
     // FIXME: ugly
     Vector<type,dim>   cross( Vector<type, dim> a);
 

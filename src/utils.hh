@@ -13,7 +13,6 @@ void assert_node(tinyxml2::XMLNode* node, std::string expName);
 bool is_named(std::string name, tinyxml2::XMLNode* node);
 Vec3d parseVec(tinyxml2::XMLElement* elt);
 
-
 // Vector utility functions
 Vec3d randSphere(Vec3d center, double radius, double start1, double start2, double len);
 
@@ -30,4 +29,7 @@ Vec3d minVec(Vec3d a, Vec3d b);
 Vec3d maxVec(Vec3d a, Vec3d b);
 
 std::ostream& operator<<(std::ostream& out, Vec3d vec);
+
+bool fequals(double a, double b) noexcept;
+
 #endif

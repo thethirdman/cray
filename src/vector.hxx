@@ -2,7 +2,18 @@
 # define VECTOR_HXX_
 
 template <typename type, std::size_t dim>
-type Vector<type,dim>::dot(Vector<type,dim> a)
+type Vector<type, dim>::norm() const
+{
+    type ret = 0;
+
+    for (unsigned int i = 0; i < dim; i++)
+        ret += coord_[i] * coord_[i];
+
+    return sqrt(ret);
+}
+
+template <typename type, std::size_t dim>
+type Vector<type,dim>::dot(const Vector<type,dim>& a) const
 {
 
   type ret = 0;

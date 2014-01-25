@@ -95,8 +95,21 @@ Obj::Obj(const char* fname, Material& mat, double scale, Vec3d translate, double
   bbox_ = polygons_.getBBox();
 }
 
+bool Obj::containsPoint(const Vec3d& pt) const
+{
+    return polygons_.findSurroundingShape(pt) != nullptr;
+}
+
 bool Obj::computeColorFromTexture(const Vec3d& where, Color& out) const
 {
-    // FIXME
-    return true;
+    Shape* s = polygons_.findSurroundingShape(where);
+
+    if (s == nullptr) // no Shape in polygons_ does contain where.
+    {
+        return false;
+    }
+
+    bool obvious_answer = s->computeColorFromTexture(where, out);
+    assert(obvious_answer == true);
+    return obvious_answer;
 }

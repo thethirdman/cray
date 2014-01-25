@@ -24,7 +24,7 @@ class BBox
       return BBox(minp, maxp);
     }
 
-    bool mustShoot(Ray& ray)
+    bool mustShoot(const Ray& ray) const
     {
       double tmin = 0;
       double tmax = std::numeric_limits<double>::max();
@@ -54,6 +54,13 @@ class BBox
         }
       }
       return true;
+    }
+
+    bool containsPoint(const Vec3d& pt) const
+    {
+        return pt[0] >= minpt[0] && pt[0] <= maxpt[0]
+            && pt[1] >= minpt[1] && pt[1] <= maxpt[1]
+            && pt[2] >= minpt[2] && pt[2] <= maxpt[2];
     }
 
     Vec3d minpt;
