@@ -200,9 +200,12 @@ Triangle* Triangle::parse(tinyxml2::XMLNode* node)
 
 bool Triangle::containsPoint(const Vec3d& point) const
 {
+    Vec3d v2{point  - pt1_};
+
+    if (!fequals(normal_.dot(v2), 0)) return false; // not in the same plane
+
     Vec3d v0{pt3_   - pt1_};
     Vec3d v1{pt2_   - pt1_};
-    Vec3d v2{point  - pt1_};
 
     double dot00{v0.dot(v0)};
     double dot01{v0.dot(v1)};
@@ -214,7 +217,7 @@ bool Triangle::containsPoint(const Vec3d& point) const
     double u{(dot11 * dot02 - dot01 * dot12) * invDenom};
     double v{(dot00 * dot12 - dot01 * dot02) * invDenom};
 
-    return (u >= 0) && (v >= 0) && (u + v < 1);
+    return (u >= 0) && (v >= 0) && (u + v <= 1);
 }
 
 bool Triangle::computeColorFromTexture(const Vec3d& where, Color& out) const
