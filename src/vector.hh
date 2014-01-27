@@ -32,6 +32,27 @@ class Vector
 
     inline type dot(const Vector<type,dim>& a) const;
 
+    bool operator<(const Vector& a) const
+    {
+      for (unsigned int i = 0; i < dim; i++)
+      {
+        if (coord_[i] < a[i])
+          return true;
+      }
+      return false;
+    }
+
+    // Returns the distance square between two points
+    type dist(Vector a)
+    {
+      Vector diff = *this - a;
+      type ret = 0;
+      for (unsigned int i = 0; i < dim; i++)
+        ret += diff[i] * diff[i];
+
+      return sqrt(ret);
+    }
+
     // FIXME: ugly
     Vector<type,dim>   cross( Vector<type, dim> a);
 

@@ -86,7 +86,7 @@ Vector<type,dim> operator-(Vector<type,dim> a)
 template <typename type, std::size_t dim>
 bool operator==(const Vector<type,dim>& a, const Vector<type,dim>& b)
 {
-    for (size_t i = 0; i < dim; ++i)
+    for (std::size_t i = 0; i < dim; ++i)
     {
         if (!(a[i] == b[i])) return false;
     }
