@@ -148,16 +148,16 @@ public:
 };
 
 template <typename T>
-inline bool operator<(const SolidInterval<T>* a, const SolidInterval<T>* b) noexcept;
+inline bool operator<(const SolidInterval<T>& a, const SolidInterval<T>& b) noexcept;
 
 template <typename T>
-inline bool operator>(const SolidInterval<T>* a, const SolidInterval<T>* b) noexcept;
+inline bool operator>(const SolidInterval<T>& a, const SolidInterval<T>& b) noexcept;
 
 template <typename T>
-inline bool operator==(const SolidInterval<T>* a, const SolidInterval<T>* b) noexcept;
+inline bool operator==(const SolidInterval<T>& a, const SolidInterval<T>& b) noexcept;
 
 template <typename T>
-inline bool operator!=(const SolidInterval<T>* a, const SolidInterval<T>* b) noexcept;
+inline bool operator!=(const SolidInterval<T>& a, const SolidInterval<T>& b) noexcept;
 
 
   /************************/
