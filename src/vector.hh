@@ -60,15 +60,20 @@ inline bool operator==(const Vector<type,dim>& a, const Vector<type,dim>& b);
 
 typedef Vector<double,3> Vec3d;
 
-template<>
-struct std::hash<Vec3d>
+namespace std
 {
-    size_t operator()(const Vec3d& v) const noexcept
+
+    template<>
+    struct hash<Vec3d>
     {
-        std::hash<double> h;
-        return h(v[0]) ^ h(v[1]) ^ h(v[2]);
-    }
-};
+        size_t operator()(const ::Vec3d& v) const noexcept
+        {
+            hash<double> h;
+            return h(v[0]) ^ h(v[1]) ^ h(v[2]);
+        }
+    };
+
+} // namespace std
 
 #include "vector.hxx"
 
