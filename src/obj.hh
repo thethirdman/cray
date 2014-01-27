@@ -2,6 +2,7 @@
 # define OBJ_HH_
 
 #include "shape.hh"
+#include "normaltriangle.hh"
 #include "vector.hh"
 #include "kdtree.hh"
 
@@ -10,14 +11,15 @@ class Obj: public Shape
   public:
     static Obj* parse(tinyxml2::XMLNode* node);
 
-    Obj (const char* fname,
-         Material& mat,
-         double scale,
-         Vec3d translate,
-         double rot[],
-         double refl);
+    Obj(const char* fname,
+        Material& mat,
+        double scale,
+        Vec3d translate,
+        double rot[],
+        double refl,
+        bool interp);
 
-    bool intersect(Ray ray, Vec3d& intersect, double& dist)
+    bool intersect(Ray ray, Vec3d& intersect, double& dist) const
     {
       return (polygons_.intersect(ray, intersect, dist) != 0);
     }

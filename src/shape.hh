@@ -19,7 +19,7 @@ class Shape
 
     // Returns the normal to a shape at the point of intersection, or a null
     // pointer otherwise
-    virtual bool intersect(Ray ray, Vec3d& intersect, double& dist) = 0;
+    virtual bool intersect(Ray ray, Vec3d& intersect, double& dist) const = 0;
 
     // The normal vector to a shape at the intersection point pt
     virtual Vec3d normal(Ray& ray) = 0;
@@ -110,7 +110,7 @@ class Sphere : public Shape
       bbox_ = BBox(center_ - radVec, center_ + radVec);
     }
 
-    bool intersect(Ray ray, Vec3d& intersect, double& dist)
+    bool intersect(Ray ray, Vec3d& intersect, double& dist) const
     {
       double a = ray.dir().dot(ray.dir());
       Vec3d o_c = ray.orig() - center_; // O-C
@@ -128,11 +128,11 @@ class Sphere : public Shape
         double mint;
         // If the root is negative, that means that the solution is "behind"
         // the origin of the ray
-        if (t1 > 0 && t2 > 0)
+        if (t1 >= 0 && t2 >= 0)
           mint = std::min(t1,t2);
-        else if (t1 > 0)
+        else if (t1 >= 0)
           mint = t1;
-        else if (t2 > 0)
+        else if (t2 >= 0)
           mint = t2;
         else
           return false;
@@ -178,7 +178,7 @@ class Plane : public Shape
       center_ = pt1;
     }
 
-    bool intersect(Ray ray, Vec3d& intersect, double& dist)
+    bool intersect(Ray ray, Vec3d& intersect, double& dist) const
     {
       // We first compute the intersection between the ray and the plane in
       // which the triangle is included
@@ -188,7 +188,7 @@ class Plane : public Shape
       double t = (k - ray.orig().dot(normal_))/(ray.dir().dot(normal_));
       intersect = ray.orig() + t * ray.dir();
       dist = t;
-      if (t > 0)
+      if (t >= 0)
         return true;
       else
         return false;
@@ -228,7 +228,8 @@ class Triangle : public Shape
         e2_ = (pt3_ - pt1_);
       }
 
-    bool intersect(Ray ray, Vec3d& intersect, double& dist)
+
+    bool intersect(Ray ray, Vec3d& intersect, double& dist) const
     {
       Vec3d p = ray.dir().cross(e2_);
       double det = e1_.dot(p);
@@ -247,7 +248,7 @@ class Triangle : public Shape
 
       dist = e2_.dot(q) * inv_det;
       intersect = ray.orig() + dist * ray.dir();
-      if (dist > 0)
+      if (dist >= 0.)
         return true;
       else
         return false;
@@ -259,10 +260,9 @@ class Triangle : public Shape
     }
 
     bool containsPoint(const Vec3d& point) const override;
+    Vec3d getNormal() {return normal_;}
 
-  private:
-    bool computeColorFromTexture(const Vec3d& where, Color& out) const override;
-
+  protected:
     // A triangle is defined by 3 points in the space
     Vec3d pt1_;
     Vec3d pt2_;
@@ -274,6 +274,24 @@ class Triangle : public Shape
     // The direction of the normal is the same for the whole triangle, so, we
     // precompute it
     Vec3d normal_;
+
+    std::pair<double,double> getBarycentric(Ray ray)
+    {
+      Vec3d p = ray.dir().cross(e2_);
+      double det = e1_.dot(p);
+      double inv_det = 1. / det;
+
+      Vec3d t = ray.orig() - pt1_;
+      double u = t.dot(p) * inv_det;
+
+      Vec3d q = t.cross(e1_);
+      double v = ray.dir().dot(q) * inv_det;
+
+      return std::pair<double,double>(u,v);
+    }
+  private:
+    bool computeColorFromTexture(const Vec3d& where, Color& out) const override;
+
 };
 
 #endif

@@ -47,7 +47,7 @@ class Light
         double light_dist = (cur_orig - intersection).norm();
         double shadowed = 0.0;
         Ray light_ray (cur_orig , dir_light);
-        const double shift = std::numeric_limits<double>::epsilon() * 128.;
+        const double shift = std::numeric_limits<double>::epsilon() * 2048;
         Ray shadow_ray (intersection + shift * dir_light, -dir_light);
 
         // If this ray hits a shape, it shadowed.
@@ -59,7 +59,7 @@ class Light
           if (dist + shift < light_dist)
             shadowed = 1;
         }
-        shadowed = 0;
+        //shadowed = 0;
 
         const Material& mat = shape.getMaterial();
         double diffcoef = mat.get_diffuse_coef() * clamp_zero(shape.normal(shadow_ray).dot(-light_ray.dir()) - shadowed);
@@ -68,11 +68,17 @@ class Light
         double phong = (diffcoef <= 0 ? 0
             : mat.get_specular_coef() * clamp_zero(refl_light.dir().dot(normalize(ray.orig() - intersection))));
 
-        Color acolor = mat.get_ambient_coef() * shape.getColorAt(intersection);
-        Color dcolor = diffcoef * mat.get_diffuse_coef() * shape.getColorAt(intersection);
+        Color acolor = mat.get_ambient_coef() * mat.color_at(0,0); // shape.getColorAt(intersection);
+
+
+        Color dcolor = diffcoef * mat.get_diffuse_coef() * mat.color_at(0,0); // shape.getColorAt(intersection);
         Color scolor = pow(phong, mat.get_brilliancy()) * Color(1,1,1);
 
         total_color  = total_color + satSum(satSum(acolor, dcolor), scolor);
+
+        // Normal debug
+        //Vec3d normal = shape.normal(shadow_ray);
+        //total_color = Color(fabs(normal[0]), fabs(normal[1]), fabs(normal[2]));
 
         if (samples_ != 0)
         {

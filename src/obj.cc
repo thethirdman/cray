@@ -1,6 +1,7 @@
 #include "obj.hh"
 #include <tiny_obj_loader.h>
 #include <cassert>
+#include <list>
 
 Obj* Obj::parse(tinyxml2::XMLNode* node)
 {
@@ -10,6 +11,11 @@ Obj* Obj::parse(tinyxml2::XMLNode* node)
   Material* mat = nullptr;
   Vec3d trans (0,0,0);
   double rot[3];
+
+  bool interp = node->ToElement()->Attribute("interp", "true");
+
+  if(interp)
+    std::cout << "INTERP" << std::endl;
 
   tinyxml2::XMLNode* child = node->FirstChild();
   do
@@ -36,14 +42,11 @@ Obj* Obj::parse(tinyxml2::XMLNode* node)
   // Deg to radians
   for (int i = 0; i < 3; i++)
     rot[i] = M_PI * rot[i]/180;
-  return new Obj(name, *mat, scale, trans, rot, 0.);
+  return new Obj(name, *mat, scale, trans, rot, 0., interp);
 }
 
-Vec3d project(double scale, Vec3d translate, double rot[], double x, double y, double z)
+Vec3d rotate(double rot[], double x, double y, double z)
 {
-  x = x * scale + translate[0];
-  y = -y * scale + translate[1];
-  z = z * scale + translate[2];
 
   double xrot = cos(rot[1]) * cos(rot[2]) * x
               + (cos(rot[0])*sin(rot[2]) + sin(rot[0])*sin(rot[1])*cos(rot[2])) * y
@@ -54,21 +57,34 @@ Vec3d project(double scale, Vec3d translate, double rot[], double x, double y, d
               + (sin(rot[0])*cos(rot[2]) + cos(rot[0])*sin(rot[1])*sin(rot[2])) * z;
 
   double zrot = sin(rot[1]) * x - sin(rot[0])*cos(rot[1]) * y + cos(rot[0])*cos(rot[1])*z;
-
   return Vec3d(xrot, yrot, zrot);
 }
 
-Obj::Obj(const char* fname, Material& mat, double scale, Vec3d translate, double rot[], double refl)
+Vec3d project(double scale, Vec3d translate, double rot[], double x, double y, double z)
+{
+  x = x * scale + translate[0];
+  y = -y * scale + translate[1];
+  z = z * scale + translate[2];
+
+  return rotate(rot, x, y, z);
+}
+
+Obj::Obj(const char* fname, Material& mat, double scale, Vec3d translate, double rot[], double refl, bool interp)
   : Shape(mat, refl), name_(fname)
 {
   std::vector<tinyobj::shape_t> shapes;
   std::vector<Shape*> contents;
   std::string err = tinyobj::LoadObj(shapes, name_, "scenes/");
   std::cout << "Error: " << err << std::endl;
+  std::map<Vec3d, std::list<Triangle*>> ptMap;
+
+  bool existNormals = false;
 
   for (unsigned int s = 0; s < shapes.size(); s++)
   {
     std::vector<float>& positions = shapes[s].mesh.positions;
+    std::vector<float>& normals = shapes[s].mesh.normals;
+
     for (unsigned int idx = 0; idx < shapes[s].mesh.indices.size() / 3; idx++)
     {
       unsigned int index1 =  shapes[s].mesh.indices[3 * idx];
@@ -88,9 +104,48 @@ Obj::Obj(const char* fname, Material& mat, double scale, Vec3d translate, double
                           positions[index3 * 3 + 1],
                           positions[index3 * 3 + 2]);
 
-      contents.push_back(new Triangle(pt1,pt2,pt3,material_, refl_coef_));
+      if (interp)
+      {
+        NormalTriangle* t = new NormalTriangle(pt1, pt2, pt3, material_, refl_coef_);
+
+        contents.push_back(t);
+        if (normals.size() == 0)
+        {
+          ptMap[pt1].push_back(t);
+          ptMap[pt2].push_back(t);
+          ptMap[pt3].push_back(t);
+        }
+        else
+        {
+          existNormals = true;
+
+          //std::cout << "Normal size: " << std::endl;
+          assert(positions.size() == normals.size());
+          // FIXME: should be +0 +1 +2 instead of this
+          Vec3d n1  = rotate(rot, normals[index1 * 3 + 0], -normals[index1 * 3 + 1], normals[index1 * 3 + 2]);
+          Vec3d n2  = rotate(rot, normals[index2 * 3 + 0], -normals[index2 * 3 + 1], normals[index2 * 3 + 2]);
+          Vec3d n3  = rotate(rot, normals[index3 * 3 + 0], -normals[index3 * 3 + 1], normals[index3 * 3 + 2]);
+
+          t->setNormal(1, n1);
+          t->setNormal(2, n2);
+          t->setNormal(3, n3);
+        }
+      }
+      else
+        contents.push_back(new Triangle(pt1, pt2, pt3, material_, refl_coef_));
     }
   }
+
+  if (interp && !existNormals)
+  {
+    for (unsigned int i = 0; i < contents.size(); i++)
+    {
+      ((NormalTriangle*) contents[i])->updateNormals(ptMap);
+    }
+  }
+
+  std::cout << "Size: " << contents.size() << std::endl;
+
   polygons_.buildTree(contents);
   bbox_ = polygons_.getBBox();
 }
