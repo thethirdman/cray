@@ -1,6 +1,7 @@
 #include "color.hh"
+#include "utils.hh"
 
-Color Color::parse(tinyxml2::XMLElement* elt)
+Color Color::parse(const tinyxml2::XMLElement* elt)
 {
   double r = nan("");
   double g = nan("");
@@ -10,13 +11,10 @@ Color Color::parse(tinyxml2::XMLElement* elt)
   elt->QueryDoubleAttribute("g", &g);
   elt->QueryDoubleAttribute("b", &b);
 
-  if (isnan(r) || isnan(g) || isnan(b))
-  {
-    std::cerr << "Error: missing attribute in color, either r, g or b" << std::endl;
-    exit(1);
-  }
-  return Color(r,g,b);
+  PARSE_ERROR_IF(isnan(r) || isnan(g) || isnan(b),
+                 "missing attribute in color, either r, g or b");
 
+  return Color(r,g,b);
 }
 
 Color operator+ (Color a, Color other)

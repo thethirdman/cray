@@ -32,4 +32,12 @@ std::ostream& operator<<(std::ostream& out, Vec3d vec);
 
 bool fequals(double a, double b) noexcept;
 
+# define PARSE_ERROR_IF(condition, str) \
+    do { \
+        if (condition) { \
+            std::cerr << "\033[1m\033[31mParse error:\033[0m " << str << std::endl; \
+            std::exit(1); \
+        } \
+    } while (0)
+
 #endif

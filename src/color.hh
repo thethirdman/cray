@@ -16,7 +16,7 @@
 class Color
 {
   public:
-    static Color parse(tinyxml2::XMLElement* node);
+    static Color parse(const tinyxml2::XMLElement* node);
 
     explicit Color()
         : r_(0), g_(0), b_(0), max_val_(0)
