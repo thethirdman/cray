@@ -14,3 +14,7 @@
 
 # image output folder
 renders/*
+
+# cmake
+CMakeFiles/*
+CMakeCache.txt

@@ -1,7 +1,6 @@
 #ifndef UTILS_HH_
 # define UTILS_HH_
 
-#include <cv.h>
 #include <tinyxml2.h>
 #include <iostream>
 #include <ostream>

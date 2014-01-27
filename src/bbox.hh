@@ -1,7 +1,6 @@
 #ifndef BBOX_HH_
 # define BBOX_HH_
 
-#include <cv.h>
 #include "vector.hh"
 #include "ray.hh"
 #include "utils.hh"

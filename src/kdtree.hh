@@ -1,7 +1,6 @@
 #ifndef KDTREE_HH_
 # define KDTREE_HH_
 
-#include <cv.h>
 #include "shape.hh"
 #include "bbox.hh"
 #include "vector.hh"

@@ -2,7 +2,6 @@
 # define CAMERA_HH_
 
 #include <vector>
-#include <cv.h>
 #include "vector.hh"
 #include "ray.hh"
 #include "utils.hh"
