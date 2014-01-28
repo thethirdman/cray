@@ -23,8 +23,8 @@ public:
                   const BitmapTextureTranslation& = std::make_pair(0, 0));
 
 private:
-    const cv::Mat&                 texture_;
-    const BitmapTextureTranslation translation_;
+    const cv::Mat                   texture_;
+    const BitmapTextureTranslation  translation_;
     const int x_max_;
     const int y_max_;
 };

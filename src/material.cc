@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
+#include <highgui.h>
 #include <limits>
 #include <list>
 #include <vector>
@@ -8,6 +9,7 @@
 #include "utils.hh"
 #include "interval.hh"
 #include "material.hh"
+#include "bitmap_texture.hh"
 
 Material::Material(MaterialFunctor      func,
                    const PhongBundle&   pb,
@@ -290,22 +292,23 @@ Material* Material::parse(tinyxml2::XMLNode* node)
 {
   tinyxml2::XMLElement* elt = node->ToElement();
 
+  float ambient  = nan("");
+  float diffuse  = nan("");
+  float specular = nan("");
+  float brilliancy = nan("");
+  float refl = nan("");
+
+  elt->QueryFloatAttribute("ambient", &ambient);
+  elt->QueryFloatAttribute("diffuse", &diffuse);
+  elt->QueryFloatAttribute("specular", &specular);
+  elt->QueryFloatAttribute("brilliancy", &brilliancy);
+  elt->QueryFloatAttribute("refl", &refl);
+
+  PARSE_ERROR_IF(isnan(ambient) || isnan(diffuse) || isnan(specular) || isnan(brilliancy),
+                 "missing attribute for material");
+
   if (elt->Attribute("type", "simple"))
   {
-    float ambient  = nan("");
-    float diffuse  = nan("");
-    float specular = nan("");
-    float brilliancy = nan("");
-    float refl = nan("");
-
-    elt->QueryFloatAttribute("ambient", &ambient);
-    elt->QueryFloatAttribute("diffuse", &diffuse);
-    elt->QueryFloatAttribute("specular", &specular);
-    elt->QueryFloatAttribute("brilliancy", &brilliancy);
-    elt->QueryFloatAttribute("refl", &refl);
-
-    PARSE_ERROR_IF(isnan(ambient) || isnan(diffuse) || isnan(specular) || isnan(brilliancy),
-                   "missing attribute for material");
     // FIXME: color
     tinyxml2::XMLElement* child_elt = node->FirstChild()->ToElement();
     Color c = Color::parse(child_elt);
@@ -314,22 +317,6 @@ Material* Material::parse(tinyxml2::XMLNode* node)
   }
   else if (elt->Attribute("type", "procedural"))
   {
-      float ambient  = nan("");
-      float diffuse  = nan("");
-      float specular = nan("");
-      float brilliancy = nan("");
-      float refl = nan("");
-
-      elt->QueryFloatAttribute("ambient", &ambient);
-      elt->QueryFloatAttribute("diffuse", &diffuse);
-      elt->QueryFloatAttribute("specular", &specular);
-      elt->QueryFloatAttribute("brilliancy", &brilliancy);
-      elt->QueryFloatAttribute("refl", &refl);
-
-      PARSE_ERROR_IF(isnan(ambient) || isnan(diffuse)
-                     || isnan(specular) || isnan(brilliancy),
-                     "missing attribute for material");
-
       std::vector<ICC> constraints;
       auto n = node->FirstChildElement("color");
       while (n != nullptr)
@@ -349,8 +336,24 @@ Material* Material::parse(tinyxml2::XMLNode* node)
   }
   else if (elt->Attribute("type", "bitmap"))
   {
-    std::cerr << "Bitmap texture not yet implemented" << std::endl;
-    exit(1);
+      BitmapTextureTranslation trans{0, 0};
+      if (const char* xoff = elt->Attribute("x-offset"))
+      {
+          trans.first = std::atoi(xoff);
+      }
+      if (const char* yoff = elt->Attribute("y-offset"))
+      {
+          trans.second = std::atoi(yoff);
+      }
+
+      tinyxml2::XMLElement* child_elt = node->FirstChildElement("image");
+      PARSE_ERROR_IF(child_elt == nullptr,
+                     "missing image node for bitmap material");
+      return new BitmapTexture{
+          cv::imread(child_elt->GetText()),
+          PhongBundle{{ambient, diffuse, specular, brilliancy}},
+          trans
+      };
   }
   else
   {
