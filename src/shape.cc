@@ -74,7 +74,8 @@ Sphere* Sphere::parse(tinyxml2::XMLNode* node)
   while ((child = child->NextSibling()));
 
   // FIXME: refl value
-  return new Sphere(pos, *mat, radius, 0.1);
+  std::cout << "Refl value: " << mat->get_refl() << std::endl;
+  return new Sphere(pos, *mat, radius);
 }
 
 bool Sphere::containsPoint(const Vec3d& point) const
@@ -134,7 +135,7 @@ Plane* Plane::parse(tinyxml2::XMLNode* node)
   while ((child = child->NextSibling()));
 
   // FIXME: refl value
-  return new Plane(pos,dir1,dir2, *mat, 0);
+  return new Plane(pos,dir1,dir2, *mat);
 }
 
 bool Plane::computeColorFromTexture(const Vec3d& where, Color& out) const
@@ -195,7 +196,7 @@ Triangle* Triangle::parse(tinyxml2::XMLNode* node)
   }
   while ((child = child->NextSibling()));
 
-  return new Triangle(pt1,pt2,pt3, *mat, 0.5);
+  return new Triangle(pt1,pt2,pt3, *mat);
 }
 
 bool Triangle::containsPoint(const Vec3d& point) const

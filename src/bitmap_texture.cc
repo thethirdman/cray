@@ -10,8 +10,9 @@
  */
 BitmapTexture::BitmapTexture(const cv::Mat& texture,
                              const PhongBundle& pb,
+                             float refl,
                              const BitmapTextureTranslation& translation)
-    : Material(nullptr, pb),
+    : Material(nullptr, pb, refl),
       texture_(texture),
       translation_(translation),
       x_max_(texture.cols - 1),

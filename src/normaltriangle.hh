@@ -12,8 +12,8 @@ class NormalTriangle : public Triangle
 {
   public:
     NormalTriangle (Vec3d pt1, Vec3d pt2, Vec3d pt3,
-        Material& mat, double refl)
-      : Triangle(pt1,pt2,pt3,mat,refl)
+        Material& mat)
+      : Triangle(pt1,pt2,pt3,mat)
     {}
 
     Vec3d normal(Ray& ray)

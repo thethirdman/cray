@@ -26,7 +26,7 @@ using PhongBundle = std::array<float, 4>;
 class Material
 {
 public:
-    Material(MaterialFunctor, const PhongBundle&);
+    Material(MaterialFunctor, const PhongBundle&, float refl);
 
     static Material* parse(tinyxml2::XMLNode* node);
 
@@ -37,6 +37,8 @@ public:
     inline float get_specular_coef() const;
     inline float get_brilliancy() const;
     PhongBundle  get_phongbundle() const;
+
+    inline float get_refl() const;
 
     inline void set_ambient_coef(float);
     inline void set_diffuse_coef(float);
@@ -56,6 +58,8 @@ protected:
     float diffuse_coef_;
     float specular_coef_;
     float brilliancy_;
+
+    float refl_coef_;
 };
 
 # include "material.hxx"

@@ -26,6 +26,11 @@ float Material::get_brilliancy() const
     return brilliancy_;
 }
 
+float Material::get_refl() const
+{
+  return refl_coef_;
+}
+
 /* SETTERS */
 
 void Material::set_ambient_coef(float coef)

@@ -16,7 +16,6 @@ class Obj: public Shape
         double scale,
         Vec3d translate,
         double rot[],
-        double refl,
         bool interp);
 
     bool intersect(Ray ray, Vec3d& intersect, double& dist) const

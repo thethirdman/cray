@@ -10,10 +10,12 @@
 #include "material.hh"
 
 Material::Material(MaterialFunctor      func,
-                   const PhongBundle&   pb)
+                   const PhongBundle&   pb,
+                   float refl)
     : func_(func),
       ambient_coef_(pb[0]), diffuse_coef_(pb[1]),
-      specular_coef_(pb[2]), brilliancy_(pb[3])
+      specular_coef_(pb[2]), brilliancy_(pb[3]),
+      refl_coef_(refl)
 {
 }
 
@@ -294,11 +296,13 @@ Material* Material::parse(tinyxml2::XMLNode* node)
     float diffuse  = nan("");
     float specular = nan("");
     float brilliancy = nan("");
+    float refl = nan("");
 
     elt->QueryFloatAttribute("ambient", &ambient);
     elt->QueryFloatAttribute("diffuse", &diffuse);
     elt->QueryFloatAttribute("specular", &specular);
     elt->QueryFloatAttribute("brilliancy", &brilliancy);
+    elt->QueryFloatAttribute("refl", &refl);
 
     PARSE_ERROR_IF(isnan(ambient) || isnan(diffuse) || isnan(specular) || isnan(brilliancy),
                    "missing attribute for material");
@@ -306,7 +310,7 @@ Material* Material::parse(tinyxml2::XMLNode* node)
     tinyxml2::XMLElement* child_elt = node->FirstChild()->ToElement();
     Color c = Color::parse(child_elt);
     std::function<Color(int,int)> fn = [c](int,int) {return c;};
-    return new Material(fn, PhongBundle{{ambient, diffuse, specular, brilliancy}});
+    return new Material(fn, PhongBundle{{ambient, diffuse, specular, brilliancy}}, refl);
   }
   else if (elt->Attribute("type", "procedural"))
   {
@@ -314,11 +318,13 @@ Material* Material::parse(tinyxml2::XMLNode* node)
       float diffuse  = nan("");
       float specular = nan("");
       float brilliancy = nan("");
+      float refl = nan("");
 
       elt->QueryFloatAttribute("ambient", &ambient);
       elt->QueryFloatAttribute("diffuse", &diffuse);
       elt->QueryFloatAttribute("specular", &specular);
       elt->QueryFloatAttribute("brilliancy", &brilliancy);
+      elt->QueryFloatAttribute("refl", &refl);
 
       PARSE_ERROR_IF(isnan(ambient) || isnan(diffuse)
                      || isnan(specular) || isnan(brilliancy),
@@ -337,7 +343,8 @@ Material* Material::parse(tinyxml2::XMLNode* node)
 
       return new Material{
           makeProceduralFunctor(constraints, repeat),
-          PhongBundle{{ambient, diffuse, specular, brilliancy}}
+          PhongBundle{{ambient, diffuse, specular, brilliancy}},
+          refl
       };
   }
   else if (elt->Attribute("type", "bitmap"))

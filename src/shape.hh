@@ -49,8 +49,6 @@ class Shape
       return material_;
     }
 
-    double refl(void) const {return refl_coef_;}
-
     Vec3d center(void) const {return center_;}
 
     Ray reflect(Ray ray)
@@ -69,14 +67,12 @@ class Shape
     }
 
   protected:
-    Shape(Material& mat, double refl)
+    Shape(Material& mat)
         : material_(mat)
-        , refl_coef_(refl)
         , lazy_texturing_first_point_(nullptr)
     {}
 
     Material material_;
-    double refl_coef_;
     Vec3d center_;
     BBox bbox_;
 
@@ -102,8 +98,8 @@ class Sphere : public Shape
   public:
     static Sphere* parse(tinyxml2::XMLNode* node);
 
-    Sphere(Vec3d c, Material& mat, double r, double refl)
-        : Shape(mat, refl), radius_(r)
+    Sphere(Vec3d c, Material& mat, double r)
+        : Shape(mat), radius_(r)
     {
       center_ = c;
       Vec3d radVec (radius_, radius_, radius_);
@@ -165,8 +161,8 @@ class Plane : public Shape
   public:
     static Plane* parse(tinyxml2::XMLNode* node);
 
-    Plane(Vec3d pt1, Vec3d dir1, Vec3d dir2, Material& mat, double refl)
-    : Shape(mat, refl), pt1_(pt1), dir1_(dir1), dir2_(dir2)
+    Plane(Vec3d pt1, Vec3d dir1, Vec3d dir2, Material& mat)
+    : Shape(mat), pt1_(pt1), dir1_(dir1), dir2_(dir2)
     {
       normal_ = normalize(dir1.cross(dir2));
 
@@ -215,8 +211,8 @@ class Triangle : public Shape
   public:
     static Triangle* parse(tinyxml2::XMLNode* node);
 
-    Triangle(Vec3d pt1, Vec3d pt2, Vec3d pt3, Material& mat, double refl)
-      : Shape(mat, refl), pt1_(pt1), pt2_(pt2), pt3_(pt3)
+    Triangle(Vec3d pt1, Vec3d pt2, Vec3d pt3, Material& mat)
+      : Shape(mat), pt1_(pt1), pt2_(pt2), pt3_(pt3)
       {
         normal_ = normalize((pt3_ - pt2_).cross(pt1_ - pt3_));
         bbox_ = BBox(minVec(minVec(pt1_, pt2_), pt3_),

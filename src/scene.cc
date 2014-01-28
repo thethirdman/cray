@@ -71,11 +71,12 @@ Color Scene::render_light(Ray &ray, Vec3d intersection, Light& l, Shape& shape, 
   // FIXME: reflection (shift)
   Ray refl_ray = shape.reflect(Ray(intersection, ray.dir()));
   Color refl_color = color;
-  if (depth < 0 && shape.refl() > 0)
+  float refl_coef = shape.getMaterial().get_refl();
+  //std::cout << "Refl: " << refl_coef << std::endl;
+  if (depth < 5 && refl_coef > 0)
   {
     // FIXME: make diffuse reflection
     refl_color = ray_launch(refl_ray, depth + 1);
-    double refl_coef = shape.refl();
 
     if (refl_color.max() != 0)
       color = ponderate(color, 1. - refl_coef) + ponderate(refl_color, refl_coef);
@@ -128,17 +129,30 @@ void Scene::render(void)
 
 void Scene::save(std::string fname)
 {
-  cv::Mat img (y_, x_, CV_8UC3);
+  int out_y = y_ / SIZE_FACTOR;
+  int out_x = x_ / SIZE_FACTOR;
+  cv::Mat img (out_y, out_x, CV_8UC3);
 
   std::cout << "SAVE" << std::endl;
   std::cout << y_ << " " << x_ << std::endl;
 
-  for (int j = 0; j < y_; j++)
-    for (int i = 0; i < x_; i++)
-      img.at<cv::Vec3b>(j,i) = canvas_[j * x_ + i].toBgr();
+  for (int j = 0; j < out_y; j++)
+    for (int i = 0; i < out_x; i++)
+    {
+      Color total (0,0,0,0);
+      for (int b = j * SIZE_FACTOR; b < (j+1) * SIZE_FACTOR; b++)
+        for (int a = i * SIZE_FACTOR; a < (i+1) * SIZE_FACTOR; a++)
+        {
+          Color cur = canvas_[b * x_ + a];
+          if (cur.max() == 0)
+            total = total + Color(0,0,0);
+          else
+            total = total + canvas_[b * x_ + a];
+        }
+      img.at<cv::Vec3b>(j,i) = total.toBgr();
 
-  cv::Mat r_img (y_ /SIZE_FACTOR, x_ / SIZE_FACTOR, CV_8UC3);
+    }
 
-  cv::resize(img, r_img, r_img.size(), CV_INTER_CUBIC);
-  cv::imwrite(fname, r_img);
+
+  cv::imwrite(fname, img);
 }

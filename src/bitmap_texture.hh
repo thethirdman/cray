@@ -16,9 +16,10 @@ public:
      * function returning the Color of the image at given coordinates.
      * Therefore we define it implicitely.
      */
-    BitmapTexture(MaterialFunctor, const PhongBundle&) = delete;
+    BitmapTexture(MaterialFunctor, const PhongBundle&, float refl) = delete;
     BitmapTexture(const cv::Mat& texture,
                   const PhongBundle&,
+                  float refl,
                   const BitmapTextureTranslation& = std::make_pair(0, 0));
 
 private:

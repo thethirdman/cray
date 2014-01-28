@@ -42,7 +42,7 @@ Obj* Obj::parse(tinyxml2::XMLNode* node)
   // Deg to radians
   for (int i = 0; i < 3; i++)
     rot[i] = M_PI * rot[i]/180;
-  return new Obj(name, *mat, scale, trans, rot, 0., interp);
+  return new Obj(name, *mat, scale, trans, rot, interp);
 }
 
 Vec3d rotate(double rot[], double x, double y, double z)
@@ -69,8 +69,8 @@ Vec3d project(double scale, Vec3d translate, double rot[], double x, double y, d
   return rotate(rot, x, y, z);
 }
 
-Obj::Obj(const char* fname, Material& mat, double scale, Vec3d translate, double rot[], double refl, bool interp)
-  : Shape(mat, refl), name_(fname)
+Obj::Obj(const char* fname, Material& mat, double scale, Vec3d translate, double rot[], bool interp)
+  : Shape(mat), name_(fname)
 {
   std::vector<tinyobj::shape_t> shapes;
   std::vector<Shape*> contents;
@@ -106,7 +106,7 @@ Obj::Obj(const char* fname, Material& mat, double scale, Vec3d translate, double
 
       if (interp)
       {
-        NormalTriangle* t = new NormalTriangle(pt1, pt2, pt3, material_, refl_coef_);
+        NormalTriangle* t = new NormalTriangle(pt1, pt2, pt3, material_);
 
         contents.push_back(t);
         if (normals.size() == 0)
@@ -132,7 +132,7 @@ Obj::Obj(const char* fname, Material& mat, double scale, Vec3d translate, double
         }
       }
       else
-        contents.push_back(new Triangle(pt1, pt2, pt3, material_, refl_coef_));
+        contents.push_back(new Triangle(pt1, pt2, pt3, material_));
     }
   }
 
