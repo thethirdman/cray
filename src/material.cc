@@ -128,102 +128,136 @@ makeIntervalConstrainedColor(const tinyxml2::XMLElement* color_node)
 using ICC = struct IntervalConstrainedColor;
 
 static std::function<Color(int,int)>
-_makeProceduralFunctor_repeat(const std::vector<ICC>& constraints,
-                              bool base_exists, Color base)
+_makeProceduralFunctor_repeat_noBase(const std::vector<ICC>& constraints)
 {
-    const DefinedInterval<unsigned>* x_dinterval;
-    const DefinedInterval<unsigned>* y_dinterval;
+    Interval<unsigned>* x_interval{new EmptyInterval<unsigned>};
+    Interval<unsigned>* y_interval{new EmptyInterval<unsigned>};
+    Interval<unsigned>* tmp{nullptr};
 
+    for (const ICC& c: constraints)
     {
-        Interval<unsigned>* x_interval{new SolidInterval<unsigned>{0, 0}};
-        Interval<unsigned>* y_interval{new SolidInterval<unsigned>{0, 0}};
-        Interval<unsigned>* tmp{nullptr};
-
-        for (auto c: constraints)
+        if (c.xconstrained)
         {
-            if (c.xconstrained)
-            {
-                tmp = x_interval->aggregate(
-                    Interval<unsigned>::create(c.xfrom, c.xto)
-                );
-                delete x_interval;
-                x_interval = tmp;
-            }
-            if (c.yconstrained)
-            {
-                tmp = y_interval->aggregate(
-                    Interval<unsigned>::create(c.yfrom, c.yto)
-                );
-                delete y_interval;
-                y_interval = tmp;
-            }
+            tmp = x_interval->aggregate(Interval<unsigned>::create(c.xfrom, c.xto));
+            delete x_interval;
+            x_interval = tmp;
         }
-
-        assert(x_interval->toDefinedInterval());
-        assert(y_interval->toDefinedInterval());
-
-        x_dinterval = x_interval->toDefinedInterval();
-        y_dinterval = y_interval->toDefinedInterval();
+        if (c.yconstrained)
+        {
+            tmp = y_interval->aggregate(Interval<unsigned>::create(c.yfrom, c.yto));
+            delete y_interval;
+            y_interval = tmp;
+        }
     }
 
-    PARSE_ERROR_IF(x_dinterval->getMin() != 0,
-                   "no base color defined for interval [0;" << x_dinterval->getMin()
+    unsigned xmax{
+        x_interval->toDefinedInterval()
+            ? x_interval->toDefinedInterval()->getMax()
+            : 0
+    };
+    unsigned ymax{
+        y_interval->toDefinedInterval()
+            ? y_interval->toDefinedInterval()->getMax()
+            : 0
+    };
+
+    PARSE_ERROR_IF(x_interval->toDefinedInterval()
+                   && x_interval->toDefinedInterval()->getMin() > 0,
+                   "no base color for unspecified interval [0;"
+                   << x_interval->toDefinedInterval()->getMin()
                    << "[ in where_x clauses");
-    PARSE_ERROR_IF(y_dinterval->getMin() != 0,
-                   "no base color defined for interval [0;" << y_dinterval->getMin()
+    PARSE_ERROR_IF(y_interval->toDefinedInterval()
+                   && y_interval->toDefinedInterval()->getMin() > 0,
+                   "no base color for unspecified interval [0;"
+                   << y_interval->toDefinedInterval()->getMin()
                    << "[ in where_y clauses");
 
-    unsigned xmax{x_dinterval->getMax()}, ymax{y_dinterval->getMax()};
+    PARSE_ERROR_IF(x_interval->toDefinedInterval()
+                   && !x_interval->toDefinedInterval()->continuous(),
+                   "missing a default color with discontinuous "
+                   "where_x clauses");
+    PARSE_ERROR_IF(y_interval->toDefinedInterval()
+                   && !y_interval->toDefinedInterval()->continuous(),
+                   "missing a default color with discontinuous "
+                   "where_y clauses");
 
-    if (base_exists)
+    delete x_interval;
+    delete y_interval;
+
+    return [xmax,ymax,constraints](int xx, int yy) -> Color
     {
-        delete x_dinterval;
-        delete y_dinterval;
-
-        return [xmax,ymax,base,constraints](int xx, int yy) -> Color
-        {
-            if (xmax > 0) xx %= xmax;
-            if (ymax > 0) yy %= ymax;
-            unsigned x = (xx < 0 ? xmax - xx : xx);
-            unsigned y = (yy < 0 ? ymax - yy : yy);
-            for (auto c: constraints) {
-                if (!c.xconstrained || (x >= c.xfrom && x <= c.xto)) {
-                    if (!c.yconstrained || (y >= c.yfrom && y <= c.yto)) {
-                        return c.color;
-                    }
+        unsigned x = xmax > 0
+            ? (xx >= 0 ? xx % xmax : ((xx + 1) % xmax) + xmax - 1)
+            : (xx >= 0 ? xx : std::numeric_limits<unsigned>::max() + xx);
+        unsigned y = ymax > 0
+            ? (yy >= 0 ? yy % ymax : ((yy + 1) % ymax) + ymax - 1)
+            : (yy >= 0 ? yy : std::numeric_limits<unsigned>::max() + yy);
+        for (const ICC& c: constraints) {
+            if (!c.xconstrained || (x >= c.xfrom && x <= c.xto)) {
+                if (!c.yconstrained || (y >= c.yfrom && y <= c.yto)) {
+                    return c.color;
                 }
             }
-            return base;
-        };
-    }
-    else
+        }
+        std::exit(33);
+    };
+}
+
+static std::function<Color(int,int)>
+_makeProceduralFunctor_repeat_withBase(const std::vector<ICC>& constraints,
+                                       Color base)
+{
+    Interval<unsigned>* x_interval{new EmptyInterval<unsigned>};
+    Interval<unsigned>* y_interval{new EmptyInterval<unsigned>};
+    Interval<unsigned>* tmp{nullptr};
+
+    for (const ICC& c: constraints)
     {
-        PARSE_ERROR_IF(!x_dinterval->continuous(),
-                       "missing a default color with discontinuous "
-                       "where_x clause");
-        PARSE_ERROR_IF(!y_dinterval->continuous(),
-                       "missing a default color with discontinuous "
-                       "where_y clause");
-
-        delete x_dinterval;
-        delete y_dinterval;
-
-        return [xmax,ymax,constraints](int xx, int yy) -> Color
+        if (c.xconstrained)
         {
-            if (xmax > 0) xx %= xmax;
-            if (ymax > 0) yy %= ymax;
-            unsigned x = (xx < 0 ? xmax - xx : xx);
-            unsigned y = (yy < 0 ? ymax - yy : yy);
-            for (auto c: constraints) {
-                if (!c.xconstrained || (x >= c.xfrom && x <= c.xto)) {
-                    if (!c.yconstrained || (y >= c.yfrom && y <= c.yto)) {
-                        return c.color;
-                    }
+            tmp = x_interval->aggregate( Interval<unsigned>::create(c.xfrom, c.xto));
+            delete x_interval;
+            x_interval = tmp;
+        }
+        if (c.yconstrained)
+        {
+            tmp = y_interval->aggregate(Interval<unsigned>::create(c.yfrom, c.yto));
+            delete y_interval;
+            y_interval = tmp;
+        }
+    }
+
+    unsigned xmax{
+        x_interval->toDefinedInterval()
+            ? x_interval->toDefinedInterval()->getMax()
+            : 0
+    };
+    unsigned ymax{
+        y_interval->toDefinedInterval()
+            ? y_interval->toDefinedInterval()->getMax()
+            : 0
+    };
+
+    delete x_interval;
+    delete y_interval;
+
+    return [xmax,ymax,constraints,base](int xx, int yy) -> Color
+    {
+        unsigned x = xmax > 0
+            ? (xx >= 0 ? xx % xmax : ((xx + 1) % xmax) + xmax - 1)
+            : (xx >= 0 ? xx : std::numeric_limits<unsigned>::max() + xx);
+        unsigned y = ymax > 0
+            ? (yy >= 0 ? yy % ymax : ((yy + 1) % ymax) + ymax - 1)
+            : (yy >= 0 ? yy : std::numeric_limits<unsigned>::max() + yy);
+        for (const ICC& c: constraints) {
+            if (!c.xconstrained || (x >= c.xfrom && x <= c.xto)) {
+                if (!c.yconstrained || (y >= c.yfrom && y <= c.yto)) {
+                    return c.color;
                 }
             }
-            assert(0 && "never reached");
-        };
-    }
+        }
+        return base;
+    };
 }
 
 static std::function<Color(int,int)>
@@ -237,23 +271,13 @@ _makeProceduralFunctor_noRepeat(std::vector<ICC>& constraints, Color base)
     {
         return [base,constraints](int x, int y) -> Color
         {
+            unsigned xx = (x > 0 ? x : 0);
+            unsigned yy = (y > 0 ? y : 0);
             for (auto c: constraints) {
-                if (c.xconstrained) {
-                    if (static_cast<unsigned>(x) >= c.xfrom
-                        && static_cast<unsigned>(x) <= c.xto)
-                    {
-                        if (c.yconstrained
-                            && (static_cast<unsigned>(y) < c.yfrom
-                                || static_cast<unsigned>(y) > c.yto))
-                            continue;
+                if (!c.xconstrained || (xx >= c.xfrom && xx <= c.xto)) {
+                    if (!c.yconstrained || (yy >= c.yfrom && yy <= c.yto)) {
                         return c.color;
                     }
-                    else continue;
-                }
-                else if (c.yconstrained
-                         && static_cast<unsigned>(y) >= c.yfrom
-                         && static_cast<unsigned>(y) <= c.yto) {
-                    return c.color;
                 }
             }
             return base;
@@ -273,19 +297,24 @@ makeProceduralFunctor(std::vector<ICC>& constraints, bool repeat)
         [](const ICC& c){ return !c.xconstrained && !c.yconstrained; }
     );
 
-    bool base_exists = ibase != constraints.cend();
-    Color base = base_exists ? ibase->color : Color(0,0,0);
-
-    std::remove_if(constraints.begin(), constraints.end(),
-                   [](const ICC& c){ return !c.xconstrained && !c.yconstrained; });
-
-    PARSE_ERROR_IF(!repeat && base_exists,
-                   "can't create a non-repetitive procedural texture without "
-                   "a base color (without where_x and where_y clauses)");
-
-    return repeat
-        ? _makeProceduralFunctor_repeat(constraints, base_exists, base)
-        : _makeProceduralFunctor_noRepeat(constraints, base);
+    if (ibase != constraints.cend())
+    {
+        Color color{ibase->color};
+        std::remove_if(constraints.begin(), constraints.end(),
+                       [](const ICC& c){ return !c.xconstrained && !c.yconstrained; });
+        if (repeat)
+            return _makeProceduralFunctor_noRepeat(constraints, color);
+        else
+            return _makeProceduralFunctor_repeat_withBase(constraints, color);
+    }
+    else
+    {
+        PARSE_ERROR_IF(!repeat,
+                   "can't create a non-repetitive procedural texture "
+                   "without a base color "
+                   "(having no where_x nor where_y clauses)");
+        return _makeProceduralFunctor_repeat_noBase(constraints);
+    }
 }
 
 Material* Material::parse(tinyxml2::XMLNode* node)
