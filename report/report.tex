@@ -14,7 +14,13 @@
 
 \maketitle
 
-\section{Formes de bases}
+\section*{Introduction}
+
+Ce rapport présente les éléments principaux du raytracer que nous avons
+implémenté dans le cadre du cours du projet de synthèse d'image. Nous avons
+implémenté quelques formes primitives: sphères, triangles et plans, et avons
+ajouté un support pour les fichiers ".obj". Le modèle de lumière utilise un
+modèle de Phong, qui gère les réflections et les lumières avec volume.
 
 \section{Modèle de Phong}
 
@@ -41,17 +47,17 @@ La \cref{phong} montre chacune des composantes de l'éclairage de Phong:
     \includegraphics[width=1\textwidth]{images/phong4.png}
     \subcaption{Résultat final}
   \end{subfigure}
-  \caption{Eclairage de Phong\label{phong}}
+  \caption{Éclairage de Phong\label{phong}}
 \end{figure}
 
 
 \section{Réflection}
 La réflection est implémentée simplement dans notre raytracer: lorsqu'un rayon
-touche un object, la fonction de lancer de rayon est appelée récursivement avec
-le rayon réflechi issu de l'intersection. La récursion s'arrête lorsque la
+touche un objet, la fonction de lancer de rayon est appelée récursivement avec
+le rayon réfléchi issu de l'intersection. La récursion s'arrête lorsque la
 profondeur maximale de réflection est atteinte. La couleur résultante est ainsi
 mélangée avec celle calculée à la surface de l'objet, selon le coefficient de
-reflection de l'objet. La \label{refl} détaille l'importance de la
+réflection de l'objet. La \label{refl} détaille l'importance de la
 réflection selon le coefficient associé.
 
 \begin{figure}[hb]
@@ -75,7 +81,7 @@ réflection selon le coefficient associé.
   \caption{Réflection selon le coefficient\label{refl}}
 \end{figure}
 
-Car calculer la réflection sur un object revient à lancer un rayon
+Car calculer la réflection sur un objet revient à lancer un rayon
 supplémentaire, cela a un impact remarquable sur les performances. Afin
 d'obtenir un résultat satisfaisant et suffisamment rapide à générer, la
 profondeur maximale de réflection a été mise à 5.
@@ -83,23 +89,23 @@ profondeur maximale de réflection a été mise à 5.
 \section{Lumières avec Volume}
 
 Lorsque qu'un rayon atteint un objet, on vérifie que le point de l'objet est
-bien éclairé: cela se fait en lancant un rayon du point d'intersection vers une
-lumière, et en s'assurant qu'aucun autre object est sur le chemin. Avec des
+bien éclairé: cela se fait en lançant un rayon du point d'intersection vers une
+lumière, et en s'assurant qu'aucun autre objet est sur le chemin. Avec des
 lumières simples, les ombres obtenues de cette manière sont dures, et ne
 prennent pas en compte de la forme de l'objet pour la dureté de l'ombre.
 Ceci est dû au fait que la lumière n'a pas de volume, et que donc, il n'y a
-aucune gradation dans l'ombre de l'object.
+aucune gradation dans l'ombre de l'objet.
 
-Afin d'obtenir de meilleures ombres, nous avons implementé des lumières avec
+Afin d'obtenir de meilleures ombres, nous avons implémenté des lumières avec
 volume. En gardant à l'esprit les performance, une lumière avec volume est en
 fait une distribution uniforme de lumières sans volume sur une sphère d'un
-rayon défini par l'utilisateur. Cela nous permet aisi d'obtenir des ombres plus
+rayon défini par l'utilisateur. Cela nous permet ainsi d'obtenir des ombres plus
 douces, comme montré dans la \cref{light}.
 
 \begin{figure}[hb]
   \begin{subfigure}{0.45\textwidth}
     \includegraphics[width=1\textwidth]{images/samples0.png}
-    \subcaption{Lumière non-échantillonée de rayon 1}
+    \subcaption{Lumière sans échantillons}
   \end{subfigure}
   \begin{subfigure}{0.45\textwidth}
     \includegraphics[width=1\textwidth]{images/samples10.png}
@@ -145,7 +151,7 @@ de droite.
 \end{figure}
 
 
-\section{Chargement d'Objets et KDTree}
+\section{Chargement d'objet et KDTree}
 
 Afin de proposer à l'utilisateur de rendre des formes plus complexes, nous
 gérons le chargement de fichiers ".obj" dans notre raytracer. Nous utilisons
@@ -223,7 +229,7 @@ normal: le rouge représente l'axe x, le vert l'axe y, et le bleu l'axe z.
 \section{Anti-crénelage}
 
 Lors du rendu des images, on constate un effet de crénelage qui est du à au
-fait que un pixel ne décrit pas fidélement la couleur dans une zone de l'image:
+fait que un pixel ne décrit pas fidèlement la couleur dans une zone de l'image:
 si un rayon est proche de la frontière d'un objet, il retournera la couleur de
 cet objet, sans prendre en compte le fait que il est situé à l'extrémité de
 l'objet. Afin de parer à ce problème, on utilise la technique du
@@ -232,7 +238,7 @@ comme montré dans la \cref{super}.
 
 Pour cela, on augmente la taille de l'image selon un facteur donné, afin de
 faire correspondre un ensemble de pixels à le pixel d'origine, pour avoir une
-couleur décrivant plus précisémment la région affichée.
+couleur décrivant plus précisément la région affichée.
 
 \begin{figure}
   \begin{center}
