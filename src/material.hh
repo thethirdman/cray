@@ -49,6 +49,7 @@ public:
     const MaterialFunctor& get_functor() const;
 
     inline Color color_at(int x, int y) const;
+    inline Color color_at(double x, double y) const;
 
 protected:
     const MaterialFunctor func_;

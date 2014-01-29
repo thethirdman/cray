@@ -2,6 +2,7 @@
 # define MATERIAL_HXX
 
 # include <cassert>
+# include <cmath>
 # include "material.hh"
 
 /* GETTERS */
@@ -62,6 +63,12 @@ void Material::set_brilliancy(float coef)
 Color Material::color_at(int x, int y) const
 {
     return func_(x, y);
+}
+
+Color Material::color_at(double x, double y) const
+{
+    return func_(static_cast<int>(std::round(x)),
+                 static_cast<int>(std::round(y)));
 }
 
 #endif // !MATERIAL_HXX

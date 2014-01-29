@@ -68,10 +68,22 @@ class Light
         double phong = (diffcoef <= 0 ? 0
             : mat.get_specular_coef() * clamp_zero(refl_light.dir().dot(normalize(ray.orig() - intersection))));
 
-        Color acolor = mat.get_ambient_coef() * mat.color_at(0,0); // shape.getColorAt(intersection);
+        Color acolor = mat.get_ambient_coef() *
+            /*
+            mat.color_at(0,0);
+            // */
+            //*
+            shape.getColorAt(intersection);
+            // */
 
+        Color dcolor = diffcoef * mat.get_diffuse_coef() *
+            /*
+            mat.color_at(0,0);
+            // */
+            //*
+            shape.getColorAt(intersection);
+            // */
 
-        Color dcolor = diffcoef * mat.get_diffuse_coef() * mat.color_at(0,0); // shape.getColorAt(intersection);
         Color scolor = pow(phong, mat.get_brilliancy()) * Color(1,1,1);
 
         total_color  = total_color + satSum(satSum(acolor, dcolor), scolor);

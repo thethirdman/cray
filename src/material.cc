@@ -184,14 +184,41 @@ _makeProceduralFunctor_repeat_noBase(const std::vector<ICC>& constraints)
     delete x_interval;
     delete y_interval;
 
-    return [xmax,ymax,constraints](int xx, int yy) -> Color
+    return [xmax,ymax,constraints](const int xx, const int yy) -> Color
     {
-        unsigned x = xmax > 0
-            ? (xx >= 0 ? xx % xmax : ((xx + 1) % xmax) + xmax - 1)
-            : (xx >= 0 ? xx : std::numeric_limits<unsigned>::max() + xx);
         unsigned y = ymax > 0
             ? (yy >= 0 ? yy % ymax : ((yy + 1) % ymax) + ymax - 1)
             : (yy >= 0 ? yy : std::numeric_limits<unsigned>::max() + yy);
+
+        unsigned x{0};
+        if (xx == -3)
+        {
+            if (xmax > 0)
+            {
+                if (xx >= 0)
+                    x = xx % xmax;
+                else
+                {
+                    int temp = xx + 1;
+                    temp %= xmax;
+                    assert(temp == ((xx + 1) % xmax));
+                    temp += xmax - 1;
+                    x = temp;
+                }
+            }
+            else
+            {
+                if (xx >= 0) x = xx;
+                else x = std::numeric_limits<unsigned>::max() + xx;
+            }
+        }
+        else
+        {
+            x = xmax > 0
+                ? (xx >= 0 ? xx % xmax : ((xx + 1) % xmax) + xmax - 1)
+                : (xx >= 0 ? xx : std::numeric_limits<unsigned>::max() + xx);
+        }
+
         for (const ICC& c: constraints) {
             if (!c.xconstrained || (x >= c.xfrom && x <= c.xto)) {
                 if (!c.yconstrained || (y >= c.yfrom && y <= c.yto)) {
@@ -199,6 +226,8 @@ _makeProceduralFunctor_repeat_noBase(const std::vector<ICC>& constraints)
                 }
             }
         }
+        std::cerr << "Nooo! Can't handle (" << xx << "; " << yy << ") "
+            << "(transformed into (" << x << "; " << y << "))" << std:: endl;
         std::exit(33);
     };
 }

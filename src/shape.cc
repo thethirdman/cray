@@ -147,10 +147,20 @@ bool Plane::computeColorFromTexture(const Vec3d& where, Color& out) const
         lazy_texturing_first_point_ = new Vec3d{where};
         out = material_.color_at(0, 0);
     }
+    else if (lazy_texturing_first_axis_ == nullptr)
+    {
+        assert(lazy_texturing_first_point_ != nullptr);
+        lazy_texturing_first_axis_ = new Vec3d{where - *lazy_texturing_first_point_};
+        double dist = lazy_texturing_first_axis_->norm();
+        out = material_.color_at(dist, 0.);
+    }
     else
     {
-        Vec3d diff = where - *lazy_texturing_first_point_;
-        out = material_.color_at(diff[0], diff[1]);
+        Vec3d b = where - *lazy_texturing_first_point_;
+        double blen = b.norm();
+        double cos = lazy_texturing_first_axis_->dot(b)
+            / (blen * lazy_texturing_first_axis_->norm());
+        out = material_.color_at(blen * cos, blen * -std::sqrt(1-cos*cos));
     }
     return true;
 }
@@ -230,10 +240,20 @@ bool Triangle::computeColorFromTexture(const Vec3d& where, Color& out) const
         lazy_texturing_first_point_ = new Vec3d{where};
         out = material_.color_at(0, 0);
     }
+    else if (lazy_texturing_first_axis_ == nullptr)
+    {
+        assert(lazy_texturing_first_point_ != nullptr);
+        lazy_texturing_first_axis_ = new Vec3d{where - *lazy_texturing_first_point_};
+        double dist = lazy_texturing_first_axis_->norm();
+        out = material_.color_at(dist, 0.);
+    }
     else
     {
-        Vec3d diff = where - *lazy_texturing_first_point_;
-        out = material_.color_at(diff[0], diff[1]);
+        Vec3d b = where - *lazy_texturing_first_point_;
+        double blen = b.norm();
+        double cos = lazy_texturing_first_axis_->dot(b)
+            / (blen * lazy_texturing_first_axis_->norm());
+        out = material_.color_at(blen * cos, blen * -std::sqrt(1-cos*cos));
     }
     return true;
 }

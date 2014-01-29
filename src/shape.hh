@@ -174,6 +174,8 @@ class Plane : public Shape
       center_ = pt1;
     }
 
+    ~Plane() { delete lazy_texturing_first_axis_; }
+
     bool intersect(Ray ray, Vec3d& intersect, double& dist) const
     {
       // We first compute the intersection between the ray and the plane in
@@ -204,6 +206,8 @@ class Plane : public Shape
     Vec3d dir1_;
     Vec3d dir2_;
     Vec3d normal_;
+
+    mutable Vec3d* lazy_texturing_first_axis_ = nullptr;
 };
 
 class Triangle : public Shape
@@ -224,6 +228,7 @@ class Triangle : public Shape
         e2_ = (pt3_ - pt1_);
       }
 
+    ~Triangle() { delete lazy_texturing_first_axis_; }
 
     bool intersect(Ray ray, Vec3d& intersect, double& dist) const
     {
@@ -271,6 +276,8 @@ class Triangle : public Shape
     // precompute it
     Vec3d normal_;
 
+    mutable Vec3d* lazy_texturing_first_axis_ = nullptr;
+
     std::pair<double,double> getBarycentric(Ray ray)
     {
       Vec3d p = ray.dir().cross(e2_);
@@ -285,9 +292,9 @@ class Triangle : public Shape
 
       return std::pair<double,double>(u,v);
     }
+
   private:
     bool computeColorFromTexture(const Vec3d& where, Color& out) const override;
-
 };
 
 #endif
