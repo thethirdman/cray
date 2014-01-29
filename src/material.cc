@@ -381,6 +381,7 @@ Material* Material::parse(tinyxml2::XMLNode* node)
       return new BitmapTexture{
           cv::imread(child_elt->GetText()),
           PhongBundle{{ambient, diffuse, specular, brilliancy}},
+          refl,
           trans
       };
   }

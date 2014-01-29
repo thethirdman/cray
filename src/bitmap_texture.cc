@@ -8,10 +8,10 @@
  * safely use a lambda that captures the (const) pointer to texture_.
  * Sorry for "const" :D
  */
-BitmapTexture::BitmapTexture(const cv::Mat& texture,
-                             const PhongBundle& pb,
+BitmapTexture::BitmapTexture(cv::Mat texture,
+                             PhongBundle pb,
                              float refl,
-                             const BitmapTextureTranslation& translation)
+                             BitmapTextureTranslation translation)
     : Material(nullptr, pb, refl),
       texture_(texture),
       translation_(translation),

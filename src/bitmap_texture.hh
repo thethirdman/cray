@@ -17,10 +17,10 @@ public:
      * Therefore we define it implicitely.
      */
     BitmapTexture(MaterialFunctor, const PhongBundle&, float refl) = delete;
-    BitmapTexture(const cv::Mat& texture,
-                  const PhongBundle&,
+    BitmapTexture(cv::Mat texture,
+                  PhongBundle,
                   float refl,
-                  const BitmapTextureTranslation& = std::make_pair(0, 0));
+                  BitmapTextureTranslation = std::make_pair(0, 0));
 
 private:
     const cv::Mat                   texture_;
