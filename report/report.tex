@@ -272,6 +272,35 @@ Avec cette méthode, il est possible d'obtenir de meilleurs résultats sur les i
 
 \section{Textures}
 
+Pour représenter des objets aux textures plus variées qu'une simple couleur
+unie, on a choisi d'associer à chaque objet un foncteur qui, à partir de deux
+coordonnées dans un plan virtuel infini (la texture), retourne la couleur en
+ce point.
+
+\subsection{Textures bitmap}
+
+Dans le cas des textures bitmap, c'est-à-dire directement chargées depuis une
+image matricielle, le foncteur renvoie simplement la couleur du pixel demandé
+sur l'image.
+
+\subsection{Textures procédurales}
+
+\subsubsection{Formes standards}
+
+Le foncteur est défini dans le fichier de description d'une scène comme une
+liste de couleurs associées à des contraintes sur un plan. On génère une
+\emph{closure} à partir de ces contraintes, et chaque forme (sphère, triangle,
+etc.) possède une méthode permettant d'associer à l'un des points de sa
+surface (en 3D) un point sur le plan de texture (en 2D) avec respect des
+distances.
+
+\subsubsection{Formes importées depuis un fichier \texttt{.obj}}
+
+Les textures doivent être définies en même temps que l'objet lui-même (à
+l'aide d'un fichier \texttt{.mtl}), par facette, et la couleur en un point est
+récupérée en utilisant le fait que les composants d'un Objet sont des formes
+standards.
+
 \section{Exemples de rendus}
 
 \end{document}
