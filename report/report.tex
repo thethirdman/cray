@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage[a4paper]{geometry}
 \usepackage{fullpage}
+\usepackage{cleveref}
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage[T1]{fontenc}
@@ -20,7 +21,7 @@
 Le modèle d'éclairage utilisé pour notre Raytracer est le modèle de réflection
 de Phong. Il définit trois composantes pour la lumière, une composante
 ambiante, une diffuse, et une spéculaire.
-Les images suivantes montrent chacune des composantes:
+La \cref{phong} montre chacune des composantes de l'éclairage de Phong:
 
 \begin{figure}[hb]
   \begin{subfigure}{0.45\textwidth}
@@ -40,9 +41,9 @@ Les images suivantes montrent chacune des composantes:
     \includegraphics[width=1\textwidth]{images/phong4.png}
     \subcaption{Résultat final}
   \end{subfigure}
+  \caption{Eclairage de Phong\label{phong}}
 \end{figure}
 
-\clearpage
 
 \section{Réflection}
 La réflection est implémentée simplement dans notre raytracer: lorsqu'un rayon
@@ -50,7 +51,7 @@ touche un object, la fonction de lancer de rayon est appelée récursivement ave
 le rayon réflechi issu de l'intersection. La récursion s'arrête lorsque la
 profondeur maximale de réflection est atteinte. La couleur résultante est ainsi
 mélangée avec celle calculée à la surface de l'objet, selon le coefficient de
-reflection de l'objet. Les images suivante détaillent l'importance de la
+reflection de l'objet. La \label{refl} détaille l'importance de la
 réflection selon le coefficient associé.
 
 \begin{figure}[hb]
@@ -71,6 +72,7 @@ réflection selon le coefficient associé.
     \includegraphics[width=1\textwidth]{images/refl1.png}
     \subcaption{Coefficient de 1}
   \end{subfigure}
+  \caption{Réflection selon le coefficient\label{refl}}
 \end{figure}
 
 Car calculer la réflection sur un object revient à lancer un rayon
@@ -92,7 +94,7 @@ Afin d'obtenir de meilleures ombres, nous avons implementé des lumières avec
 volume. En gardant à l'esprit les performance, une lumière avec volume est en
 fait une distribution uniforme de lumières sans volume sur une sphère d'un
 rayon défini par l'utilisateur. Cela nous permet aisi d'obtenir des ombres plus
-douces.
+douces, comme montré dans la \cref{light}.
 
 \begin{figure}[hb]
   \begin{subfigure}{0.45\textwidth}
@@ -121,13 +123,14 @@ douces.
     \includegraphics[width=1\textwidth]{images/samples100r05.png}
     \subcaption{Lumière avec 100 échantillons de rayon 0.5}
   \end{subfigure}
+  \caption{Rendu de lumières avec volumes\label{light}}
 \end{figure}
 
 On constate que la la distribution aléatoire des point sur la sphère engendre
 du bruit: celui ci est notamment visible sur l'exemple avec 10 échantillons.
 Afin de réduire l'influence de ce bruit, on utilise un ``lissage'' de la
 distribution de probabilité, en tirant des échantillons aléatoires dans une
-zone bien définie. La figure suivante décrit une telle méthode. L'image de
+zone bien définie. La \cref{smooth} décrit une telle méthode. L'image de
 gauche contient une distribution purement aléatoire, et cela à pour défaut de
 laisser certaines zone de l'image vide. En contraignant le tirage
 d'échantillons dans une grille, on obtient une distribution beaucoup plus
@@ -137,11 +140,10 @@ de droite.
 \begin{figure}[h]
 \begin{center}
   \includegraphics{images/smoothing.png}
-  \caption*{Exemple de lissage aléatoire}
+  \caption{Exemple de lissage aléatoire\label{smooth}}
 \end{center}
 \end{figure}
 
-\clearpage
 
 \section{Chargement d'Objets et KDTree}
 
@@ -164,7 +166,7 @@ englobante, cela implique qu'ils n'intersecte aucun des triangles du
 sous-arbre. Cela nous permet de gagner en performance lors du rendu des objets.
 
 De la même manière, l'ensemble des formes contenues dans une scène est
-représentée également sous la forme d'un KDTree. Les exemples suivants montrent
+représentée également sous la forme d'un KDTree. La \cref{obj} montre
 quelques objets chargés de cette manière.
 
 \begin{figure}[hb]
@@ -181,6 +183,7 @@ quelques objets chargés de cette manière.
     \includegraphics[width=1\textwidth]{images/obj3.png}
     \subcaption{Rendu d'un Bouddha}
   \end{subfigure}
+  \caption{Rendu de différents objets\label{obj}}
 \end{figure}
 
 \section{Interpolation de normales}
@@ -195,7 +198,7 @@ Afin de parer à ce problème, le format ".obj" définit des normales au sommets
 qui sont en fait la somme des normales des triangles associés à un sommet. A
 partir de ces normales au sommets, il est ainsi possible d'interpoler la
 normale en un point du triangle, en fonction de sa proximité aux sommets de ce
-triangle. Les images suivante affichent les normales de l'objet, avec et sans
+triangle. La \cref{normal} affiche les normales de l'objet, avec et sans
 interpolation, et le rendu obtenu. La couleur décrit la direction du vecteur
 normal: le rouge représente l'axe x, le vert l'axe y, et le bleu l'axe z.
 
@@ -214,6 +217,7 @@ normal: le rouge représente l'axe x, le vert l'axe y, et le bleu l'axe z.
     \subcaption{Résultat final}
   \end{subfigure}
 
+  \caption{Résultats de l'interpolation de normales\label{normal}}
 \end{figure}
 
 \section{Anti-crénelage}
@@ -223,10 +227,45 @@ fait que un pixel ne décrit pas fidélement la couleur dans une zone de l'image
 si un rayon est proche de la frontière d'un objet, il retournera la couleur de
 cet objet, sans prendre en compte le fait que il est situé à l'extrémité de
 l'objet. Afin de parer à ce problème, on utilise la technique du
-``supersampling'', qui consiste à lancer plusieurs rayon pour un même pixel.
+``supersampling'', qui consiste à lancer plusieurs rayon pour un même pixel,
+comme montré dans la \cref{super}.
 
-Pour cela, on augmente la taille de l'image selon un facteur donné,
+Pour cela, on augmente la taille de l'image selon un facteur donné, afin de
+faire correspondre un ensemble de pixels à le pixel d'origine, pour avoir une
+couleur décrivant plus précisémment la région affichée.
+
+\begin{figure}
+  \begin{center}
+  \includegraphics[width=0.5\textwidth]{images/supersampling.jpg}
+  \end{center}
+  \caption{Méthode de suréchantillonnage\label{super}}
+\end{figure}
+
+Avec cette méthode, il est possible d'obtenir de meilleurs résultats sur les images générées, comme dans \cref{superresults}
+
+\begin{figure}[hb]
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=1\textwidth]{images/super1.png}
+    \subcaption{Suréchantillonnage facteur 1}
+  \end{subfigure}
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=1\textwidth]{images/super2.png}
+    \subcaption{Suréchantillonnage facteur 2}
+  \end{subfigure}
+
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=1\textwidth]{images/super3.png}
+    \subcaption{Suréchantillonnage facteur 3}
+  \end{subfigure}
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=1\textwidth]{images/super4.png}
+    \subcaption{Suréchantillonnage facteur 4}
+  \end{subfigure}
+  \caption{Rendu d'une sphère selon différentes valeurs de suréchantillonnage\label{superresults}}
+\end{figure}
 
 \section{Textures}
+
+\section{Exemples de rendus}
 
 \end{document}
