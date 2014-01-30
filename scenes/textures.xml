@@ -1,0 +1,31 @@
+<scene>
+    <camera>
+        <vec name="pos" x="0"   y="0"   z="-10" />
+        <vec name="dir" x="0"   y="0"   z="1" />
+        <vec name="up"  x="0"   y="1"   z="0" />
+    </camera>
+    <shapes>
+        <plane>
+            <vec name="pos"  x="0" y="4"    z="0"/>
+            <vec name="dir1" x="0" y="0"    z="1"/>
+            <vec name="dir2" x="4" y="1"    z="1"/>
+            <material type="procedural" ambient="0.1" diffuse="1" specular="1" brilliancy="10" repeat="1">
+                <color r="1" g="1" b="0"  when_y="1..2" />
+                <color r="0" g="0" b="1"  when_y="0..1" />
+            </material>
+        </plane>
+        <sphere r="3">
+            <vec name="pos" x="-2" y="0" z="6"/>
+            <material type="procedural" ambient="0.1" diffuse="0.8" specular="0.5" brilliancy="20" repeat="0">
+                <color r="0" g="1" b="0" />
+                <color r="1" g="0" b="0" when_x="1..2" />
+            </material>
+        </sphere>
+    </shapes>
+    <lights>
+        <light r="1" samples="100">
+            <vec name="pos" x="-4" y="0" z="-3"/>
+            <color r="1" g="1" b="1"/>
+        </light>
+    </lights>
+</scene>
