@@ -218,7 +218,7 @@ _makeProceduralFunctor_repeat_withBase(const std::vector<ICC>& constraints,
     {
         if (c.xconstrained)
         {
-            tmp = x_interval->aggregate( Interval<unsigned>::create(c.xfrom, c.xto));
+            tmp = x_interval->aggregate(Interval<unsigned>::create(c.xfrom, c.xto));
             delete x_interval;
             x_interval = tmp;
         }
@@ -244,14 +244,15 @@ _makeProceduralFunctor_repeat_withBase(const std::vector<ICC>& constraints,
     delete x_interval;
     delete y_interval;
 
-    return [xmax,ymax,constraints,base](int xx, int yy) -> Color
+    return [xmax,ymax,constraints,base](const int xx, const int yy) -> Color
     {
         unsigned x = xmax > 0
-            ? (xx >= 0 ? xx % xmax : ((xx + 1) % xmax) + xmax - 1)
+            ? (xx >= 0 ? xx % xmax : -(std::abs(xx + 1) % xmax) + xmax - 1)
             : (xx >= 0 ? xx : std::numeric_limits<unsigned>::max() + xx);
         unsigned y = ymax > 0
-            ? (yy >= 0 ? yy % ymax : ((yy + 1) % ymax) + ymax - 1)
+            ? (yy >= 0 ? yy % ymax : -(std::abs(yy + 1) % ymax) + ymax - 1)
             : (yy >= 0 ? yy : std::numeric_limits<unsigned>::max() + yy);
+
         for (const ICC& c: constraints) {
             if (!c.xconstrained || (x >= c.xfrom && x <= c.xto)) {
                 if (!c.yconstrained || (y >= c.yfrom && y <= c.yto)) {
@@ -306,9 +307,9 @@ makeProceduralFunctor(std::vector<ICC>& constraints, bool repeat)
         std::remove_if(constraints.begin(), constraints.end(),
                        [](const ICC& c){ return !c.xconstrained && !c.yconstrained; });
         if (repeat)
-            return _makeProceduralFunctor_noRepeat(constraints, color);
-        else
             return _makeProceduralFunctor_repeat_withBase(constraints, color);
+        else
+            return _makeProceduralFunctor_noRepeat(constraints, color);
     }
     else
     {
